@@ -1,0 +1,12 @@
+{
+  "name": "DashRides",
+  "displayName": "DashRides",
+  "expo": {
+    "name": "DashRides",
+    "slug": "DashRides",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
