@@ -11,6 +11,14 @@
     "splash": {
       "image": "./app/assets/splash/splash.png",
       "resizeMode": "cover"
+    },
+    "androidNavigationBar": {
+      "visible": "immersive",
+      "barStyle": "light-content"
+    },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#FF931E"
     }
   }
 }
