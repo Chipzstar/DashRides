@@ -10,7 +10,7 @@ export default class Welcome extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<Text> Welcome to the Welcome Screen </Text>
+				<Text style={styles.text}> Welcome to Dash Rides </Text>
 			</View>
 		);
 	}
@@ -19,8 +19,13 @@ export default class Welcome extends Component {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#fff",
+		backgroundColor: "#FF931E",
 		alignItems: "center",
 		justifyContent: "center",
+	},
+	text: {
+		fontSize: 25,
+		textAlign: 'center',
+		fontFamily: 'Arciform'
 	}
 });
