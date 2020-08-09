@@ -1,7 +1,8 @@
 import React from "react";
 import "react-native-gesture-handler";
 import * as Font from "expo-font";
-import { Image, StyleSheet, Text, View } from "react-native";
+import * as SplashScreen from "expo-splash-screen";
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import Welcome from "./app/screens/WelcomeScreen/Welcome";
 import IntroSlider from "./app/startup/IntroSlider";
@@ -14,46 +15,57 @@ export default class App extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-			fontsLoaded: false,
+			appIsReady: false,
 			showApp: false
 		};
 	}
 
-	componentDidMount() {
-		this._loadFontsAsync().then(() => console.log("Fonts loaded!"));
+	async componentDidMount() {
+		try {
+			await SplashScreen.preventAutoHideAsync();
+		} catch (e) {
+			console.warn(e);
+		}
+		this.prepareResources();
 	}
 
-	async _loadFontsAsync() {
-		await Font.loadAsync(customFonts);
-		this.setState({ fontsLoaded: true });
-	}
+	prepareResources = async () => {
+		await downloadAssets();
+		this.setState({ appIsReady: true }, async () => {
+			await SplashScreen.hideAsync();
+		});
+	};
 
 	onComplete = () => {
 		this.setState({ showApp: true });
 	};
 
 	render() {
-		const { showApp, fontsLoaded } = this.state;
-		if (showApp && fontsLoaded) {
-			return (
-				<NavigationContainer>
-					<Welcome/>
-				</NavigationContainer>
-			);
-		} else {
-			return (
-				<NavigationContainer>
-					<IntroSlider onComplete={this.onComplete}/>
-				</NavigationContainer>
-			);
+		const { appIsReady, showApp } = this.state;
+		if (!appIsReady) {
+			return null;
 		}
+		return showApp ? (
+			<NavigationContainer>
+				<Welcome/>
+			</NavigationContainer>
+		) : (
+			<NavigationContainer>
+				<IntroSlider onComplete={this.onComplete}/>
+			</NavigationContainer>
+		);
 	}
+}
+
+async function performAPICalls() {}
+async function downloadAssets() {
+	await Font.loadAsync(customFonts);
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#fff",
+		backgroundColor: "#FF931E",
 		alignItems: "center",
 		justifyContent: "center"
 	}

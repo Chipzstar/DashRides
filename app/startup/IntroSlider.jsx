@@ -24,7 +24,7 @@ const slides = [
 	},
 	{
 		key: "three",
-		title: "Rocket guy",
+		title: "Title 3",
 		text: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
 		image: image3,
 		backgroundColor: "#FF931E"
@@ -68,12 +68,6 @@ export default class IntroSlider extends React.Component {
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#fff",
-		alignItems: "center",
-		justifyContent: "center"
-	},
 	slide: {
 		flex: 1,
 		alignItems: "center",
@@ -85,12 +79,14 @@ const styles = StyleSheet.create({
 		height: 200
 	},
 	text: {
+		fontFamily: 'Arciform',
 		fontSize: 18,
 		color: "rgba(255, 255, 255, 0.8)",
 		textAlign: "center",
 		paddingVertical: 30
 	},
 	title: {
+		fontFamily: 'Arciform',
 		fontSize: 25,
 		color: "white",
 		textAlign: "center",
