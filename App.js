@@ -2,11 +2,11 @@ import React from "react";
 import "react-native-gesture-handler";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar, StyleSheet } from "react-native";
+import { StatusBar, StyleSheet, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import Onboarding from "./app/screens/OnboardingScreen/Onboarding";
 import IntroSlider from "./app/startup/IntroSlider";
-import Theme from './app/constants/themes';
+import AppNavigator from "./app/navigation/AppNavigator";
+import { SafeAreaContext } from "react-native-safe-area-context";
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf")
@@ -48,19 +48,17 @@ export default class App extends React.Component {
 		}
 		return showApp ? (
 			<NavigationContainer>
-				<StatusBar translucent backgroundColor="transparent" />
-				<Onboarding/>
+				<AppNavigator/>
 			</NavigationContainer>
 		) : (
-			<NavigationContainer>
-				<StatusBar translucent backgroundColor="transparent" />
-				<IntroSlider onComplete={this.onComplete}/>
-			</NavigationContainer>
+			<IntroSlider onComplete={this.onComplete}/>
 		);
 	}
 }
 
-async function performAPICalls() {}
+async function performAPICalls() {
+}
+
 async function downloadAssets() {
 	await Font.loadAsync(customFonts);
 }

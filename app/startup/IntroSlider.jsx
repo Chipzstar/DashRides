@@ -6,7 +6,7 @@ import welcomeImg from "../assets/images/slider-images/welcome.png";
 import image2 from "../assets/images/2/1.png";
 import image3 from "../assets/images/3/1.png";
 import { Ionicons } from '@expo/vector-icons';
-import Theme from "../constants/themes";
+import Theme from "../constants/Theme";
 
 const slides = [
 	{
@@ -20,8 +20,8 @@ const slides = [
 	{
 		key: "two",
 		title: "Super cheap on-demand rides",
-		text: "We have the cheapest rides on the market at all times because every penny of ride fares goes to your" +
-			" driver. \rThe first commission-free platform for drivers, making us a more ethical and equitable" +
+		text: "We have the cheapest rides on the market at all times because every penny of your ride fare goes to" +
+			" your driver. \n\nThe first commission-free platform for drivers, making us a more ethical and equitable" +
 			" alternative.",
 		image: image2,
 		backgroundColor: Theme.COLOURS.PRIMARY
@@ -29,7 +29,7 @@ const slides = [
 	{
 		key: "three",
 		title: "Connect with friends",
-		text: "You receive points after every ride and when you send gifts to friends. \rSee what your friends are" +
+		text: "You receive points after every ride and when you send gifts to friends. \n\nSee what your friends are" +
 			" doing and where they are going.",
 		image: image3,
 		backgroundColor: Theme.COLOURS.PRIMARY

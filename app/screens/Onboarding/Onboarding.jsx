@@ -9,7 +9,7 @@ import {
 import { Block, Button, Text, theme } from "galio-framework";
 import bg from "../../assets/images/bg.png";
 import logo from "../../assets/splash/logo.png";
-import Theme from '../../constants/themes';
+import Theme from '../../constants/Theme';
 
 const { height, width } = Dimensions.get("screen");
 
@@ -37,12 +37,7 @@ export default class Onboarding extends Component {
 						<Block style={styles.title}>
 							<Block>
 								<Text color="white" size={60}>
-									Design
-								</Text>
-							</Block>
-							<Block>
-								<Text color="white" size={60}>
-									System
+									Get Started!
 								</Text>
 							</Block>
 							<Block style={styles.subTitle}>
@@ -54,8 +49,8 @@ export default class Onboarding extends Component {
 						<Block center>
 							<Button
 								style={styles.button}
-								color={Theme.COLOURS.PRIMARY}
-								onPress={() => navigation.navigate("Register")}
+								color={Theme.COLOURS.SECONDARY}
+								onPress={() => navigation.navigate("SignUp")}
 								textStyle={{ color: Theme.COLOURS.BLACK }}
 							>
 								Sign Up
@@ -63,7 +58,7 @@ export default class Onboarding extends Component {
 							<Button
 								style={styles.button}
 								color={Theme.COLOURS.WHITE}
-								onPress={() => navigation.navigate("Login")}
+								onPress={() => navigation.navigate("SignIn")}
 								textStyle={{ color: Theme.COLOURS.BLACK }}
 							>
 								Log in

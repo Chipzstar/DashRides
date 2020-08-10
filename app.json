@@ -15,7 +15,8 @@
     },
     "androidNavigationBar": {
       "visible": "immersive",
-      "barStyle": "light-content"
+      "barStyle": "light-content",
+      "backgroundColor": "#000000"
     },
     "androidStatusBar": {
       "translucent": true,
