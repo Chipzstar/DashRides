@@ -8,6 +8,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "icon": "./app/assets/splash/logo.png",
     "splash": {
       "image": "./app/assets/splash/splash.png",
       "resizeMode": "cover"
@@ -17,8 +18,8 @@
       "barStyle": "light-content"
     },
     "androidStatusBar": {
-      "barStyle": "dark-content",
-      "backgroundColor": "#FF931E"
+      "translucent": true,
+      "barStyle": "light-content"
     }
   }
 }

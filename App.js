@@ -2,10 +2,11 @@ import React from "react";
 import "react-native-gesture-handler";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { StyleSheet } from "react-native";
+import { StatusBar, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import Welcome from "./app/screens/WelcomeScreen/Welcome";
+import Onboarding from "./app/screens/OnboardingScreen/Onboarding";
 import IntroSlider from "./app/startup/IntroSlider";
+import Theme from './app/constants/themes';
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf")
@@ -26,7 +27,7 @@ export default class App extends React.Component {
 		} catch (e) {
 			console.warn(e);
 		}
-		this.prepareResources();
+		this.prepareResources().then(() => console.log("All resources have been loaded!"));
 	}
 
 	prepareResources = async () => {
@@ -47,10 +48,12 @@ export default class App extends React.Component {
 		}
 		return showApp ? (
 			<NavigationContainer>
-				<Welcome/>
+				<StatusBar translucent backgroundColor="transparent" />
+				<Onboarding/>
 			</NavigationContainer>
 		) : (
 			<NavigationContainer>
+				<StatusBar translucent backgroundColor="transparent" />
 				<IntroSlider onComplete={this.onComplete}/>
 			</NavigationContainer>
 		);

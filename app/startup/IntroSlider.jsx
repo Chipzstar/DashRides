@@ -2,32 +2,37 @@ import React from "react";
 import * as StatusBar from "expo-status-bar";
 import { Image, Platform, StyleSheet, Text, View } from "react-native";
 import AppIntroSlider from "react-native-app-intro-slider";
-import image1 from "../assets/images/1/c1.png"
+import welcomeImg from "../assets/images/slider-images/welcome.png";
 import image2 from "../assets/images/2/1.png";
 import image3 from "../assets/images/3/1.png";
-//import image4 from '../assets/images/4/1.png'
+import { Ionicons } from '@expo/vector-icons';
+import Theme from "../constants/themes";
 
 const slides = [
 	{
 		key: "one",
-		title: "Title 1",
-		text: "Description.\nSay something cool",
-		image: image1,
-		backgroundColor: "#FF931E"
+		title: "Welcome!",
+		text: "Dash Rides is the world's first social, ethical and most affordable ridesharing service made for" +
+			" students.",
+		image: welcomeImg,
+		backgroundColor: Theme.COLOURS.PRIMARY
 	},
 	{
 		key: "two",
-		title: "Title 2",
-		text: "Other cool stuff",
+		title: "Super cheap on-demand rides",
+		text: "We have the cheapest rides on the market at all times because every penny of ride fares goes to your" +
+			" driver. \rThe first commission-free platform for drivers, making us a more ethical and equitable" +
+			" alternative.",
 		image: image2,
-		backgroundColor: "#FF931E"
+		backgroundColor: Theme.COLOURS.PRIMARY
 	},
 	{
 		key: "three",
-		title: "Title 3",
-		text: "I'm already out of descriptions\n\nLorem ipsum bla bla bla",
+		title: "Connect with friends",
+		text: "You receive points after every ride and when you send gifts to friends. \rSee what your friends are" +
+			" doing and where they are going.",
 		image: image3,
-		backgroundColor: "#FF931E"
+		backgroundColor: Theme.COLOURS.PRIMARY
 	}
 ];
 
@@ -36,12 +41,36 @@ export default class IntroSlider extends React.Component {
 		super();
 	}
 
+	_renderNextButton = () => {
+		return (
+			<View style={styles.buttonCircle}>
+				<Ionicons
+					name="md-arrow-round-forward"
+					color="rgba(255, 255, 255, .9)"
+					size={24}
+				/>
+			</View>
+		);
+	};
+
+	_renderPrevButton = () => {
+		return (
+			<View style={styles.buttonCircle}>
+				<Ionicons
+					name="md-arrow-round-back"
+					color="rgba(255, 255, 255, .9)"
+					size={24}
+				/>
+			</View>
+		);
+	};
+
 	_renderItem = ({ item }) => {
 		return (
 			<View style={styles.slide}>
-				<Text style={styles.title}>{item.title}</Text>
 				<Image style={styles.image} source={item.image}/>
-				<Text style={styles.text}>{item.text}</Text>
+				<Text style={item.key === 'one' ? styles.welcomeTitle : styles.title}>{item.title}</Text>
+				<Text style={item.key === 'one' ? styles.welcomeText : styles.text}>{item.text}</Text>
 			</View>
 		);
 	};
@@ -59,6 +88,8 @@ export default class IntroSlider extends React.Component {
 		return (
 			<AppIntroSlider
 				renderItem={this._renderItem}
+				renderNextButton={this._renderNextButton}
+				renderPrevButton={this._renderPrevButton}
 				data={slides}
 				onDone={this._onDone}
 				showSkipButton={true}
@@ -71,25 +102,50 @@ const styles = StyleSheet.create({
 	slide: {
 		flex: 1,
 		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: "#FF931E"
+		paddingTop: 80,
+		justifyContent: "flex-start",
+		backgroundColor: Theme.COLOURS.PRIMARY,
+		paddingHorizontal: 35
 	},
 	image: {
 		width: 200,
-		height: 200
+		height: 200,
+		marginBottom: 20
+	},
+	title: {
+		fontFamily: "Arciform",
+		fontSize: 30,
+		color: "white",
+		textAlign: "left",
+		marginBottom: 15
 	},
 	text: {
-		fontFamily: 'Arciform',
+		fontSize: 18,
+		color: "rgba(255, 255, 255, 0.8)",
+		textAlign: "left",
+		paddingVertical: 30
+	},
+	welcomeText: {
 		fontSize: 18,
 		color: "rgba(255, 255, 255, 0.8)",
 		textAlign: "center",
 		paddingVertical: 30
 	},
-	title: {
-		fontFamily: 'Arciform',
-		fontSize: 25,
+	welcomeTitle: {
+		fontFamily: "Arciform",
+		fontSize: 50,
 		color: "white",
 		textAlign: "center",
-		marginBottom: 15
-	}
+		marginBottom: 15,
+		letterSpacing: 2
+	},
+	buttonCircle: {
+		width: 44,
+		height: 44,
+		backgroundColor: 'rgba(0, 0, 0, .2)',
+		borderRadius: 22,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+
 });
