@@ -1,4 +1,5 @@
 import { registerRootComponent } from 'expo';
+import Fire from './app/config/Fire';
 
 import App from './App';
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import Login from "../screens/Auth/LoginScreen/Login";
 import Register from "../screens/Auth/SignUpScreen/Register";
@@ -7,7 +7,14 @@ import Onboarding from "../screens/Onboarding/Onboarding";
 import Main from "../screens/Main/Main";
 import ChooseRide from "../screens/Main/ChooseRide";
 import Profile from "../screens/Main/Profile";
-import AuthContext, { AuthProvider } from "./context";
+import { AuthProvider } from "./context";
+import * as firebase from "firebase";
+import "firebase/auth";
+import "firebase/firestore";
+import "firebase/database";
+import { Alert } from "react-native";
+import { usersSchema } from "../constants/DatabaseSchemas";
+import { uploadPhotoAsync } from "../config/Fire";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -15,8 +22,11 @@ const MainStack = createStackNavigator();
 
 const RootStackScreen = ({ userToken }) => (
 	<RootStack.Navigator headerMode={"none"}>
-		<RootStack.Screen name={"Auth"} component={AuthStackScreen}/>
-		<RootStack.Screen name={"App"} component={MainStackScreen}/>
+		{userToken ? (
+			<RootStack.Screen name={"App"} component={MainStackScreen}/>
+		) : (
+			<RootStack.Screen name={"Auth"} component={AuthStackScreen}/>
+		)}
 	</RootStack.Navigator>
 );
 
@@ -38,38 +48,123 @@ const MainStackScreen = () => (
 
 const AppNavigator = props => {
 	const [isLoading, setIsLoading] = useState(true);
-	const [userToken, setUserToken] = useState(null);
+	const [userToken, setUserToken] = useState();
 
 	const authContext = useMemo(() => {
 		return {
-			signIn: () => {
-				setIsLoading(false);
-				setUserToken("asddf");
+			signIn: ({ email, password, ...inputs }) => {
+				firebase.auth().signInWithEmailAndPassword(email.toLowerCase(), password)
+					.then(res => {
+						console.log(res);
+						setIsLoading(false);
+						setUserToken(email.toLowerCase());
+					})
+					.catch(error => {
+						switch (error.code) {
+							case "auth/invalid-email":
+								console.error(error.message);
+								Alert.alert("That email address is invalid");
+								return;
+							case "auth/user-disabled":
+								console.error(error.message);
+								Alert.alert("The account with that email address has been disabled");
+								return;
+							case "auth/wrong-password":
+								console.error(error.message);
+								Alert.alert("Wrong password");
+								return;
+							case "auth/user-not-found":
+								console.error(error.message);
+								Alert.alert("No user exists with that email address");
+								return;
+							default:
+								console.error(error);
+						}
+					});
 			},
-			signUp: () => {
-				setIsLoading(false);
-				setUserToken("asddf");
+			signUp: async (inputs) => {
+				try {
+					const { user } = await firebase.auth().createUserWithEmailAndPassword(inputs.email, inputs.password1);
+					console.log("AuthID:", user.uid);
+					//upload user profile to firebase storage
+					const path = `user/${user.uid}/image/jpg`;
+					if (inputs.avatar) {
+						const { downloadURL } = await uploadPhotoAsync(inputs.avatar, path);
+						console.log("image uploaded!");
+						inputs.avatar = downloadURL;
+					}
+					//put details into database
+					await firebase.database()
+						.ref()
+						.child("users")
+						.child(user.uid)
+						.set({
+							...usersSchema,
+							firstname: inputs.firstName,
+							surname: inputs.lastName,
+							tel: inputs.tel,
+							profilePicURL: inputs.avatar,
+							provider: "Firebase"
+						});
+					console.log("User added to database");
+					/*firebase.database()
+						.ref(`users/${res.user.uid}`)
+						.once("value")
+						.then(snapshot => console.log(snapshot))
+						.catch(err => console.err(err));*/
+					await user.updateProfile({
+						displayName: inputs.username
+					});
+					setIsLoading(false);
+					setUserToken(user.uid);
+					console.log("User account created & signed in!");
+				} catch (err) {
+					if (err.code !== undefined) {
+						if (err.code === "auth/email-already-in-use") {
+							Alert.alert("That email address is already in use!");
+						}
+						if (err.code === "auth/invalid-email") {
+							Alert.alert("That email address is invalid!");
+						}
+					}
+					console.error(err);
+				}
 			},
 			signOut: () => {
-				setIsLoading(false);
-				setUserToken(null);
+				firebase.auth().signOut()
+					.then(function() {
+						setIsLoading(false);
+						setUserToken(null);
+					}).catch(function(error) {
+					console.error(error);
+				});
+			},
+			user: () => {
+				if (userToken) return firebase.auth().currentUser;
+				return userToken;
 			}
 		};
-	});
+	}, []);
+
+	// Handle user state changes
+	function onAuthStateChanged(user) {
+		setUserToken(user);
+		console.log(user);
+		if (isLoading) setIsLoading(false);
+	}
 
 	useEffect(() => {
-		setTimeout(() => {
+		return firebase.auth().onAuthStateChanged(onAuthStateChanged);
+		/*setTimeout(() => {
 			setIsLoading(!isLoading);
-		}, 1000);
+		}, 1000);*/
 	}, []);
 
 	return (
 		<AuthProvider value={authContext}>
 			{isLoading ?
 				<Loading/> :
-				userToken ?
-					<MainStackScreen/> :
-					<AuthStackScreen/>
+				<RootStackScreen userToken={userToken}/>
 			}
 		</AuthProvider>
 	);

@@ -1,29 +1,33 @@
 import React, { Component } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import AuthContext from "../../navigation/context";
 import Theme from "../../constants/Theme";
+import { Button, Text } from "galio-framework";
 
 export default class Main extends Component {
-	static authContext = AuthContext;
+	static contextType = AuthContext;
 
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {
+			displayName: ""
+		};
 	}
 
-	componentDidMount() {
-		const user = this.context;
-	}
-
-	// Method to update state
-	setUser = (user) => {
-		this.setState((prevState) => ({ user }));
-	};
+	/*componentDidMount() {
+		const { user } = this.context;
+		console.log(user());
+		if(user()) this.setState({ displayName: user().displayName });
+	}*/
 
 	render() {
+		const { signOut } = this.context;
 		return (
 			<View style={styles.container}>
-				<Text style={styles.text}>Welcome to the Main Screen </Text>
+				<Text h2 center style={styles.text}>Welcome! nice to see you</Text>
+				<Button color={Theme.COLOURS.SECONDARY} onPress={() => signOut()}>
+					<Text bold size={20}>Sign Out</Text>
+				</Button>
 			</View>
 		);
 	}
@@ -33,13 +37,12 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		alignItems: "center",
-		justifyContent: "center",
+		justifyContent: "space-between",
 		backgroundColor: Theme.COLOURS.PRIMARY
 	},
 	text: {
-		fontSize: 25,
+		paddingTop: 20,
 		fontFamily: "Arciform",
 		paddingHorizontal: 20
-
 	}
 });

@@ -2,11 +2,10 @@ import React from "react";
 import "react-native-gesture-handler";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar, StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import IntroSlider from "./app/startup/IntroSlider";
 import AppNavigator from "./app/navigation/AppNavigator";
-import { SafeAreaContext } from "react-native-safe-area-context";
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf")

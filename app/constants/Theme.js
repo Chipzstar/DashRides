@@ -2,6 +2,7 @@ export default {
 	COLOURS: {
 		PRIMARY: '#FF931E',
 		SECONDARY: '#2393FB',
+		DISABLED: "#888888",
 		LABEL: '#EBA3F6',
 		INFO: '#11CDEF',
 		ERROR: '#F5365C',

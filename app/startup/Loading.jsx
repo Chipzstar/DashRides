@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import Theme from "../constants/Theme";
+import { AppLoading } from "expo";
 
 const Loading = ({}) => {
 	const [] = useState();
 	return (
-		<View style={styles.container}>
-			<Text style={styles.text}> Welcome to the Loading Screen </Text>
-		</View>
+		<AppLoading/>
 	);
 };
 
