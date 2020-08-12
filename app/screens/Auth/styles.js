@@ -12,9 +12,13 @@ export default (styles = StyleSheet.create({
 		opacity: .9,
 		paddingBottom: 10
 	},
-	formHeader: {
+	signUpHeader: {
 		fontFamily: "Arciform",
 		paddingTop: 30,
+	},
+	signInHeader: {
+		fontFamily: "Arciform",
+		paddingBottom: 30,
 	},
 	input: {
 		width: width * 0.7,

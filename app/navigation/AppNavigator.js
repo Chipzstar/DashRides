@@ -53,28 +53,23 @@ const AppNavigator = props => {
 	const authContext = useMemo(() => {
 		return {
 			signIn: ({ email, password, ...inputs }) => {
-				firebase.auth().signInWithEmailAndPassword(email.toLowerCase(), password)
-					.then(res => {
-						console.log(res);
+				firebase.auth().signInWithEmailAndPassword(email.toLowerCase().trim(), password)
+					.then(({ user }) => {
 						setIsLoading(false);
-						setUserToken(email.toLowerCase());
+						setUserToken(user.uid);
 					})
 					.catch(error => {
 						switch (error.code) {
 							case "auth/invalid-email":
-								console.error(error.message);
 								Alert.alert("That email address is invalid");
 								return;
 							case "auth/user-disabled":
-								console.error(error.message);
 								Alert.alert("The account with that email address has been disabled");
 								return;
 							case "auth/wrong-password":
-								console.error(error.message);
 								Alert.alert("Wrong password");
 								return;
 							case "auth/user-not-found":
-								console.error(error.message);
 								Alert.alert("No user exists with that email address");
 								return;
 							default:

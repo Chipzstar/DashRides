@@ -63,7 +63,7 @@ export default class Register extends Component {
 		return (
 			<Block flex style={styles.container}>
 				<Block>
-					<Text h3 style={styles.formHeader}>Sign Up</Text>
+					<Text h1 style={styles.signUpHeader}>Sign Up</Text>
 				</Block>
 				<TouchableOpacity
 					style={styles.profileImagePicker}

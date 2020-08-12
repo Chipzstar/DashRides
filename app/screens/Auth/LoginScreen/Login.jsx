@@ -19,7 +19,7 @@ export default class Login extends Component {
 		return (
 			<Block flex style={styles.container}>
 				<Block>
-					<Text h1 style={styles.formHeader}>Login</Text>
+					<Text h1 style={styles.signInHeader}>Login</Text>
 				</Block>
 				<Formik
 					initialValues={{
@@ -27,7 +27,6 @@ export default class Login extends Component {
 						password: ""
 					}}
 					onSubmit={(values, actions) => {
-						actions.resetForm();
 						console.log(values);
 						signIn(values);
 					}}
