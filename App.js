@@ -8,7 +8,8 @@ import IntroSlider from "./app/startup/IntroSlider";
 import AppNavigator from "./app/navigation/AppNavigator";
 
 let customFonts = {
-	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf")
+	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf"),
+	"Emojis": require("./app/assets/icons/fonts/icomoon.ttf")
 };
 
 export default class App extends React.Component {

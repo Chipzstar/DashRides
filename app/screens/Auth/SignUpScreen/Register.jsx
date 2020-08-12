@@ -3,13 +3,13 @@ import { Block, Button, Input, Text } from "galio-framework";
 import Theme from "../../../constants/Theme";
 import AuthContext from "../../../navigation/context";
 import { Formik } from "formik";
-import { Image, ScrollView, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, TouchableOpacity } from "react-native";
 import { signUpSchema } from "../validation";
 import styles from "../styles";
 import { Ionicons } from "@expo/vector-icons";
 import UserPermissions from "../../../permissions/UserPermissions";
 import * as ImagePicker from "expo-image-picker";
-import showPopupMenu from 'react-native-popup-menu-android'
+import showPopupMenu from "react-native-popup-menu-android";
 
 export default class Register extends Component {
 	static contextType = AuthContext;
