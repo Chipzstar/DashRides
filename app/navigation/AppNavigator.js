@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Login from "../screens/Auth/LoginScreen/Login";
 import Register from "../screens/Auth/SignUpScreen/Register";
 import Loading from "../startup/Loading";
@@ -15,15 +16,18 @@ import "firebase/database";
 import { Alert } from "react-native";
 import { usersSchema } from "../constants/DatabaseSchemas";
 import { uploadPhotoAsync } from "../config/Fire";
+import DashIcons from "../components/DashIcons";
+import Socials from "../screens/Main/Socials";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const RootStackScreen = ({ userToken }) => (
 	<RootStack.Navigator headerMode={"none"}>
 		{userToken ? (
-			<RootStack.Screen name={"App"} component={MainStackScreen}/>
+			<RootStack.Screen name={"App"} component={HomeTabScreen}/>
 		) : (
 			<RootStack.Screen name={"Auth"} component={AuthStackScreen}/>
 		)}
@@ -40,10 +44,31 @@ const AuthStackScreen = () => (
 
 const MainStackScreen = () => (
 	<MainStack.Navigator headerMode={"none"}>
-		<MainStack.Screen name={"Dashboard"} component={Main}/>
+		<MainStack.Screen name={"Home"} component={Main}/>
 		<MainStack.Screen name={"ChooseRide"} component={ChooseRide}/>
 		<MainStack.Screen name={"Profile"} component={Profile}/>
 	</MainStack.Navigator>
+);
+
+const HomeTabScreen = () => (
+	<Tab.Navigator
+		initialRouteName={"Home"}
+		headerMode={"none"}
+		screenOptions={({ route }) => ({
+			tabBarIcon: ({ color, size }) => {
+				let iconName;
+				route.name === "Home" ?
+					iconName = "location" :
+					route.name === "Profile" ?
+						iconName = "user" :
+						iconName = "chat";
+				return <DashIcons name={iconName} size={size} color={color}/>;
+			}
+		})}>
+		<Tab.Screen name={"Social"} component={Socials}/>
+		<Tab.Screen name={"Home"} component={Main}/>
+		<Tab.Screen name={"Profile"} component={Profile}/>
+	</Tab.Navigator>
 );
 
 const AppNavigator = props => {
@@ -52,7 +77,7 @@ const AppNavigator = props => {
 
 	const authContext = useMemo(() => {
 		return {
-			signIn: ({ email, password, ...inputs }) => {
+			signIn: ({ email, password }) => {
 				firebase.auth().signInWithEmailAndPassword(email.toLowerCase().trim(), password)
 					.then(({ user }) => {
 						setIsLoading(false);
