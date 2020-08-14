@@ -196,9 +196,6 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation project(path: ":@react-native-firebase_app")
-    implementation project(path: ":@react-native-firebase_auth")
-    implementation project(path: ":@react-native-firebase_analytics")
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }
