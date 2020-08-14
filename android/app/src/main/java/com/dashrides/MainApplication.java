@@ -12,9 +12,6 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.dashrides.generated.BasePackageList;
-import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
-import io.invertase.firebase.auth.ReactNativeFirebaseAuthPackage;
-import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 
 import org.unimodules.adapters.react.ReactAdapterPackage;
 import org.unimodules.adapters.react.ModuleRegistryAdapter;
@@ -48,9 +45,6 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     protected List<ReactPackage> getPackages() {
       List<ReactPackage> packages = new PackageList(this).getPackages();
       packages.add(new ModuleRegistryAdapter(mModuleRegistryProvider));
-      packages.add(new ReactNativeFirebaseAppPackage());
-      packages.add(new ReactNativeFirebaseAuthPackage());
-      packages.add(new ReactNativeFirebaseAnalyticsPackage());
       return packages;
     }
 

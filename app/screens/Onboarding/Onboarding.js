@@ -34,7 +34,7 @@ export default class Onboarding extends Component {
 				</Block>
 				<Block flex space="between" style={styles.padded}>
 					<Block flex space="around" style={{ zIndex: 2 }}>
-						<Block style={styles.title}>
+					<Block style={styles.title}>
 							<Block>
 								<Text color="white" size={60}>
 									Get Started!

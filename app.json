@@ -3,8 +3,14 @@
   "displayName": "DashRides",
   "expo": {
     "name": "DashRides",
-    "slug": "DashRides",
+    "slug": "dash-rides",
+    "privacy": "public",
+    "sdkVersion": "38.0.0",
     "version": "1.0.0",
+    "android": {
+      "package": "com.dashrides",
+      "versionCode": 1
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
