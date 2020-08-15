@@ -1,5 +1,8 @@
 import { registerRootComponent } from 'expo';
 import Fire from './app/config/Fire';
+import { YellowBox } from 'react-native';
+
+YellowBox.ignoreWarnings(['Setting a timer']);
 
 import App from './App';
 

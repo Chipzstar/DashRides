@@ -9,12 +9,11 @@ import Main from "../screens/Main/Main";
 import ChooseRide from "../screens/Main/ChooseRide";
 import Profile from "../screens/Main/Profile";
 import { AuthProvider } from "./context";
-import * as firebase from "firebase";
+import * as firebase from "firebase/app";
 import "firebase/auth";
-import "firebase/firestore";
 import "firebase/database";
 import { Alert } from "react-native";
-import { usersSchema } from "../constants/DatabaseSchemas";
+import { usersSchema } from "../constants/Schemas";
 import { uploadPhotoAsync } from "../config/Fire";
 import DashIcons from "../components/DashIcons";
 import Socials from "../screens/Main/Socials";
@@ -127,15 +126,12 @@ const AppNavigator = props => {
 							provider: "Firebase"
 						});
 					console.log("User added to database");
-					/*firebase.database()
-						.ref(`users/${res.user.uid}`)
-						.once("value")
-						.then(snapshot => console.log(snapshot))
-						.catch(err => console.err(err));*/
 					await user.updateProfile({
 						displayName: inputs.username
 					});
+					//change state of for loading screen to be false
 					setIsLoading(false);
+					//sets the auth uid as the userToken's value
 					setUserToken(user.uid);
 					console.log("User account created & signed in!");
 				} catch (err) {
@@ -164,7 +160,7 @@ const AppNavigator = props => {
 				return userToken;
 			}
 		};
-	}, []);
+	}, [userToken]);
 
 	// Handle user state changes
 	function onAuthStateChanged(user) {

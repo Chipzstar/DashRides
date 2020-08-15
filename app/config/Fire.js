@@ -1,5 +1,6 @@
-import * as firebase from "firebase";
-import "firebase/firestore";
+import firebase from "firebase/app";
+import "firebase/storage";
+import "firebase/database";
 
 export const config = {
 	apiKey: "AIzaSyB5wg9Gu6z7LDwvDB9BfV03VycPk-aRFZE",
@@ -32,6 +33,35 @@ export const uploadPhotoAsync = async (uri, filepath) => {
 				resolve({ downloadURL: url });
 			}
 		);
+	});
+};
+
+export const updateUserCoordinates = async (user, coords) => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			if (user) {
+				let dataSnapshot = (await firebase.database()
+					.ref(`users/${user.uid}/coordinate`)
+					.once("value")).val();
+				console.log(dataSnapshot);
+				if (dataSnapshot[0] === coords.latitude && dataSnapshot[1] === coords.longitude)
+					resolve("Coords have not changed");
+				else {
+					await firebase.database()
+						.ref()
+						.child("users")
+						.child(user.uid)
+						.child("coordinate")
+						.update({
+							0: coords.latitude,
+							1: coords.longitude
+						});
+					resolve("New coordinates have been set!");
+				}
+			}
+		} catch (err) {
+			reject(err);
+		}
 	});
 };
 
