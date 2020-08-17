@@ -10,7 +10,7 @@
     ],
     "icon": "./app/assets/splash/logo.png",
     "splash": {
-      "image": "./app/assets/splash/splash.png",
+      "image": "./app/assets/splash/splash-2.png",
       "resizeMode": "cover"
     },
     "androidNavigationBar": {

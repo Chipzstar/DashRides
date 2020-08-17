@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Login from "../screens/Auth/LoginScreen/Login";
 import Register from "../screens/Auth/SignUpScreen/Register";
 import Loading from "../startup/Loading";
-import Onboarding from "../screens/Onboarding/Onboarding";
 import Main from "../screens/Main/Main";
 import ChooseRide from "../screens/Main/ChooseRide";
 import Profile from "../screens/Main/Profile";
@@ -12,32 +11,42 @@ import { AuthProvider } from "./context";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
-import { Alert } from "react-native";
+import { Alert, AsyncStorage } from "react-native";
 import { usersSchema } from "../constants/Schemas";
 import { uploadPhotoAsync } from "../config/Fire";
 import DashIcons from "../components/DashIcons";
 import Socials from "../screens/Main/Socials";
+import IntroSlider from "../startup/IntroSlider";
+import { clearWelcomeStatus } from "../store/AsyncStorage";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const RootStackScreen = ({ userToken }) => (
+const RootStackScreen = ({ userToken, showApp, authRoute, onAuth }) => (
 	<RootStack.Navigator headerMode={"none"}>
 		{userToken ? (
 			<RootStack.Screen name={"App"} component={HomeTabScreen}/>
+		) : showApp ? (
+			<RootStack.Screen name={"Auth"}>
+				{(props) => <AuthStackScreen routeName={authRoute}/>}
+			</RootStack.Screen>
 		) : (
-			<RootStack.Screen name={"Auth"} component={AuthStackScreen}/>
+			<RootStack.Screen name={"Welcome"}>
+				{(props) => <IntroSlider onAuth={onAuth}/>}
+			</RootStack.Screen>
 		)}
 	</RootStack.Navigator>
 );
 
-const AuthStackScreen = () => (
+const AuthStackScreen = ({ routeName }) => (
 	<AuthStack.Navigator headerMode={"none"}>
-		<AuthStack.Screen name={"Onboarding"} component={Onboarding}/>
-		<AuthStack.Screen name={"SignIn"} component={Login}/>
-		<AuthStack.Screen name={"SignUp"} component={Register}/>
+		{routeName === "SignIn" ? (
+			<AuthStack.Screen name={"SignIn"} component={Login}/>
+		) : (
+			<AuthStack.Screen name={"SignUp"} component={Register}/>
+		)}
 	</AuthStack.Navigator>
 );
 
@@ -73,6 +82,8 @@ const HomeTabScreen = () => (
 const AppNavigator = props => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [userToken, setUserToken] = useState();
+	const [showApp, setShowApp] = useState(false);
+	const [authRoute, setAuthRoute] = useState();
 
 	const authContext = useMemo(() => {
 		return {
@@ -169,18 +180,37 @@ const AppNavigator = props => {
 		if (isLoading) setIsLoading(false);
 	}
 
+	async function checkWelcomeStatus() {
+		console.log(showApp, userToken);
+		let value = await AsyncStorage.getItem("SHOW_APP");
+		console.log("Welcome status:", !!value);
+		setShowApp(!!value);
+	}
+
 	useEffect(() => {
 		return firebase.auth().onAuthStateChanged(onAuthStateChanged);
-		/*setTimeout(() => {
-			setIsLoading(!isLoading);
-		}, 1000);*/
 	}, []);
+
+	useEffect(() => {
+		checkWelcomeStatus();
+	}, []);
+
+	const onAuth = async (routeName) => {
+		await clearWelcomeStatus();
+		setShowApp(true);
+		setAuthRoute(routeName)
+	};
 
 	return (
 		<AuthProvider value={authContext}>
 			{isLoading ?
 				<Loading/> :
-				<RootStackScreen userToken={userToken}/>
+				<RootStackScreen
+					userToken={userToken}
+					showApp={showApp}
+					authRoute={authRoute}
+					onAuth={onAuth}
+				/>
 			}
 		</AuthProvider>
 	);

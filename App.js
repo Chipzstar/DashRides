@@ -4,11 +4,17 @@ import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import IntroSlider from "./app/startup/IntroSlider";
 import AppNavigator from "./app/navigation/AppNavigator";
+import Theme from "./app/constants/Theme";
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf"),
+	"Lato-Regular": require("./app/assets/fonts/lato/Lato-Regular.ttf"),
+	"Lato-Bold": require("./app/assets/fonts/lato/Lato-Bold.ttf"),
+	"Lato-Italic": require("./app/assets/fonts/lato/Lato-Italic.ttf"),
+	"Lato-Light": require("./app/assets/fonts/lato/Lato-Light.ttf"),
+	"Lato-Black": require("./app/assets/fonts/lato/Lato-Black.ttf"),
+	"Lato-Thin": require("./app/assets/fonts/lato/Lato-Thin.ttf"),
 	"DashIcons": require("./app/assets/icons/icomoon/fonts/icomoon.ttf")
 };
 
@@ -16,7 +22,7 @@ export default class App extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-			appIsReady: false,
+			loading: true,
 			showApp: false
 		};
 	}
@@ -32,27 +38,21 @@ export default class App extends React.Component {
 
 	prepareResources = async () => {
 		await downloadAssets();
-		this.setState({ appIsReady: true }, async () => {
+		this.setState({ loading: false }, async () => {
 			await SplashScreen.hideAsync();
 		});
 	};
 
-	onComplete = () => {
-		this.setState({ showApp: true });
-	};
-
 	render() {
-		const { appIsReady, showApp } = this.state;
-		if (!appIsReady) {
+		const { loading } = this.state;
+		if (loading) {
 			return null;
 		}
-		return showApp ? (
+		return (
 			<NavigationContainer>
 				<AppNavigator/>
 			</NavigationContainer>
-		) : (
-			<IntroSlider onComplete={this.onComplete}/>
-		);
+		)
 	}
 }
 
@@ -66,7 +66,7 @@ async function downloadAssets() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#FF931E",
+		backgroundColor: Theme.COLOURS.PRIMARY,
 		alignItems: "center",
 		justifyContent: "center"
 	}

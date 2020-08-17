@@ -24,6 +24,7 @@
     "firebase": "^7.17.2",
     "formik": "^2.1.5",
     "galio-framework": "^0.7.1",
+    "prop-types": "^15.7.2",
     "react": "~16.11.0",
     "react-dom": "~16.11.0",
     "react-native": "~0.62.2",
