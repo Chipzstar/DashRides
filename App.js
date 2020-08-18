@@ -2,7 +2,7 @@ import React from "react";
 import "react-native-gesture-handler";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { StyleSheet } from "react-native";
+import { AsyncStorage, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./app/navigation/AppNavigator";
 import Theme from "./app/constants/Theme";
@@ -28,6 +28,7 @@ export default class App extends React.Component {
 	}
 
 	async componentDidMount() {
+		await AsyncStorage.clear()
 		try {
 			await SplashScreen.preventAutoHideAsync();
 		} catch (e) {
@@ -56,8 +57,7 @@ export default class App extends React.Component {
 	}
 }
 
-async function performAPICalls() {
-}
+async function performAPICalls() {}
 
 async function downloadAssets() {
 	await Font.loadAsync(customFonts);

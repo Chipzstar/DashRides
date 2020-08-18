@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Keyboard, TouchableWithoutFeedback } from "react-native";
+import { Keyboard, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import { Block, Button, Input, Text } from "galio-framework";
 import Theme from "../../../constants/Theme";
 import AuthContext from "../../../navigation/context";
@@ -13,14 +13,18 @@ export default class Login extends Component {
 	constructor(props) {
 		super(props);
 	}
+	componentDidMount() {
+		console.log(this.props.navigation.dangerouslyGetState());
+	}
 
 	render() {
+		const { navigation } = this.props;
 		const { signIn } = this.context;
 		return (
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<Block flex style={styles.container}>
+				<Block flex style={styles.signInContainer}>
 					<Block>
-						<Text h1 style={styles.signInHeader}>Login</Text>
+						<Text h1 style={styles.signInHeader}>Log in</Text>
 					</Block>
 					<Formik
 						initialValues={{
@@ -56,13 +60,17 @@ export default class Login extends Component {
 								      muted>{props.touched.password && props.errors.password}</Text>
 								<Block center>
 									<Button
-										style={styles.button}
-										color={Theme.COLOURS.SECONDARY}
-										textStyle={{ color: Theme.COLOURS.BLACK }}
+										style={styles.loginBtn}
+										color={Theme.COLOURS.PRIMARY}
 										onPress={props.handleSubmit}
 									>
-										<Text style={styles.btnText}>Login</Text>
+										<Text bold color={Theme.COLOURS.WHITE} style={styles.text}>Log In</Text>
 									</Button>
+								</Block>
+								<Block center style={styles.link}>
+									<Text style={styles.text}>New user?&nbsp;
+										<Text color={Theme.COLOURS.LINK} onPress={() => navigation.navigate("SignUp")}>Sign up</Text>
+									</Text>
 								</Block>
 							</Block>
 						)}

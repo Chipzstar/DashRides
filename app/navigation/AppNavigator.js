@@ -1,23 +1,30 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useFocusEffect } from "@react-navigation/core";
+import { Alert, AsyncStorage, BackHandler } from "react-native";
+import * as firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/database";
+import { AuthProvider } from "./context";
+import { usersSchema } from "../constants/Schemas";
+//Screens
 import Login from "../screens/Auth/LoginScreen/Login";
 import Register from "../screens/Auth/SignUpScreen/Register";
 import Loading from "../startup/Loading";
 import Main from "../screens/Main/Main";
 import ChooseRide from "../screens/Main/ChooseRide";
 import Profile from "../screens/Main/Profile";
-import { AuthProvider } from "./context";
-import * as firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/database";
-import { Alert, AsyncStorage } from "react-native";
-import { usersSchema } from "../constants/Schemas";
-import { uploadPhotoAsync } from "../config/Fire";
-import DashIcons from "../components/DashIcons";
-import Socials from "../screens/Main/Socials";
 import IntroSlider from "../startup/IntroSlider";
+import Socials from "../screens/Main/Socials";
+import Onboarding from "../screens/Onboarding/Onboarding";
+//components
+import DashIcons from "../components/DashIcons";
+//functions
+import { uploadPhotoAsync } from "../config/Fire";
 import { clearWelcomeStatus } from "../store/AsyncStorage";
+//styles
+import styles from "../startup/styles";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -30,7 +37,7 @@ const RootStackScreen = ({ userToken, showApp, authRoute, onAuth }) => (
 			<RootStack.Screen name={"App"} component={HomeTabScreen}/>
 		) : showApp ? (
 			<RootStack.Screen name={"Auth"}>
-				{(props) => <AuthStackScreen routeName={authRoute}/>}
+				{(props) => <AuthStackScreen onAuth={onAuth} routeName={authRoute}/>}
 			</RootStack.Screen>
 		) : (
 			<RootStack.Screen name={"Welcome"}>
@@ -40,15 +47,34 @@ const RootStackScreen = ({ userToken, showApp, authRoute, onAuth }) => (
 	</RootStack.Navigator>
 );
 
-const AuthStackScreen = ({ routeName }) => (
-	<AuthStack.Navigator headerMode={"none"}>
-		{routeName === "SignIn" ? (
+const AuthStackScreen = ({ routeName, onAuth }) => {
+	console.log("ROUTE NAME", routeName)
+	return routeName === "SignIn" ? (
+		<AuthStack.Navigator headerMode={"none"} initialRouteName={"SignIn"}>
 			<AuthStack.Screen name={"SignIn"} component={Login}/>
-		) : (
 			<AuthStack.Screen name={"SignUp"} component={Register}/>
-		)}
-	</AuthStack.Navigator>
-);
+			<AuthStack.Screen name={"Onboarding"}>
+				{(props) => <Onboarding height={200} width={200} styles={styles} onAuth={onAuth}/>}
+			</AuthStack.Screen>
+		</AuthStack.Navigator>
+	) : routeName === "SignUp" ? (
+		<AuthStack.Navigator headerMode={"none"} initialRouteName={"SignUp"}>
+			<AuthStack.Screen name={"SignUp"} component={Register}/>
+			<AuthStack.Screen name={"SignIn"} component={Login}/>
+			<AuthStack.Screen name={"Onboarding"}>
+				{(props) => <Onboarding height={200} width={200} styles={styles} onAuth={onAuth}/>}
+			</AuthStack.Screen>
+		</AuthStack.Navigator>
+	) : (
+		<AuthStack.Navigator headerMode={"none"} initialRoute={"SignIn"}>
+			<AuthStack.Screen name={"Onboarding"}>
+				{(props) => <Onboarding height={200} width={200} styles={styles}/>}
+			</AuthStack.Screen>
+			<AuthStack.Screen name={"SignIn"} component={Login}/>
+			<AuthStack.Screen name={"SignUp"} component={Register}/>
+		</AuthStack.Navigator>
+	);
+};
 
 const MainStackScreen = () => (
 	<MainStack.Navigator headerMode={"none"}>
@@ -114,7 +140,7 @@ const AppNavigator = props => {
 			},
 			signUp: async (inputs) => {
 				try {
-					const { user } = await firebase.auth().createUserWithEmailAndPassword(inputs.email, inputs.password1);
+					const { user } = await firebase.auth().createUserWithEmailAndPassword(inputs.email, inputs.password);
 					console.log("AuthID:", user.uid);
 					//upload user profile to firebase storage
 					const path = `user/${user.uid}/image/jpg`;
@@ -183,7 +209,7 @@ const AppNavigator = props => {
 	async function checkWelcomeStatus() {
 		console.log(showApp, userToken);
 		let value = await AsyncStorage.getItem("SHOW_APP");
-		console.log("Welcome status:", !!value);
+		console.log("Ready to show app:", !!value);
 		setShowApp(!!value);
 	}
 
@@ -195,11 +221,11 @@ const AppNavigator = props => {
 		checkWelcomeStatus();
 	}, []);
 
-	const onAuth = async (routeName) => {
+	async function onAuth(routeName) {
 		await clearWelcomeStatus();
+		setAuthRoute(routeName);
 		setShowApp(true);
-		setAuthRoute(routeName)
-	};
+	}
 
 	return (
 		<AuthProvider value={authContext}>

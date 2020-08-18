@@ -8,7 +8,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "icon": "./app/assets/splash/logo.png",
+    "icon": "./app/assets/splash/logo-2.png",
     "splash": {
       "image": "./app/assets/splash/splash-2.png",
       "resizeMode": "cover"

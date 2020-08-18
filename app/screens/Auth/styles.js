@@ -1,24 +1,35 @@
 import {StyleSheet, Dimensions} from "react-native";
 import Theme from "../../constants/Theme";
+import { Button } from "galio-framework";
+import React from "react";
 
-const {width, height} = Dimensions.get("window"); //Max Width of phone screen
+export const {width, height} = Dimensions.get("window"); //Max Width of phone screen
 
 export default (styles = StyleSheet.create({
-	container: {
+	signUpContainer: {
 		flex: 1,
 		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: Theme.COLOURS.PRIMARY,
-		opacity: .9,
-		paddingBottom: 10
+		justifyContent: "flex-start",
+		backgroundColor: Theme.COLOURS.SIGN_UP,
+		paddingHorizontal: 20,
+		paddingTop: 100
 	},
-	signUpHeader: {
-		fontFamily: "Arciform",
-		paddingTop: 30,
+	signInContainer: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "flex-start",
+		backgroundColor: Theme.COLOURS.WHITE,
+		paddingHorizontal: 20,
+		paddingTop: 100
 	},
 	signInHeader: {
-		fontFamily: "Arciform",
+		fontFamily: "Lato-Bold",
 		paddingBottom: 30,
+	},
+	title: {
+		fontWeight: "bold",
+		fontFamily: "Lato-Regular",
+		fontSize: 36
 	},
 	input: {
 		width: width * 0.7,
@@ -29,8 +40,10 @@ export default (styles = StyleSheet.create({
 		borderColor: "black",
 		marginTop: 5
 	},
-	btnText: {
-		fontSize: 20
+	nextBtn: {
+		height: 50,
+		width: 200,
+		borderRadius: 15
 	},
 	error: {
 		width: width * 0.7,
@@ -53,5 +66,17 @@ export default (styles = StyleSheet.create({
 		marginTop: 30,
 		alignItems: "center",
 		justifyContent: "center"
+	},
+	loginBtn: {
+		borderRadius: 50,
+		height: 60,
+		width: 200
+	},
+	text: {
+		fontFamily: "Lato-Regular",
+		fontSize: 20,
+	},
+	link: {
+		paddingTop: 40
 	}
 }));

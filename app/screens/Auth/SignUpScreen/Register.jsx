@@ -1,15 +1,56 @@
 import React, { Component } from "react";
-import { Block, Button, Input, Text } from "galio-framework";
-import Theme from "../../../constants/Theme";
 import AuthContext from "../../../navigation/context";
-import { Formik } from "formik";
-import { Image, ScrollView, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from "react-native";
-import { signUpSchema } from "../validation";
-import styles from "../styles";
-import { Ionicons } from "@expo/vector-icons";
+import { Keyboard, SafeAreaView, ScrollView, TouchableWithoutFeedback } from "react-native";
 import UserPermissions from "../../../permissions/UserPermissions";
 import * as ImagePicker from "expo-image-picker";
-import showPopupMenu from "react-native-popup-menu-android";
+import SignUpSlide from "../../../components/SignUpSlide";
+import { width } from "../styles";
+import { validateSignUp, getErrors } from "../validation";
+
+const slides = [
+	{
+		key: "firstName",
+		pageNum: 0,
+		label: "FIRST NAME",
+		title: "Hey, let's start with your first name",
+		value: ""
+	},
+	{
+		key: "lastName",
+		pageNum: 1,
+		label: "LAST NAME",
+		title: "What's your last name?",
+		value: ""
+	},
+	{
+		key: "email",
+		pageNum: 2,
+		label: "EMAIL",
+		title: "What's your email address?",
+		value: ""
+	},
+	{
+		key: "tel",
+		pageNum: 3,
+		label: "PHONE",
+		title: "And your phone number?",
+		value: ""
+	},
+	{
+		key: "password",
+		pageNum: 4,
+		label: "PASSWORD",
+		title: "Ok, now let's pick a password.",
+		value: ""
+	},
+	{
+		key: "username",
+		pageNum: 5,
+		label: "USERNAME",
+		title: "Almost there, just pick a username.",
+		value: ""
+	}
+];
 
 export default class Register extends Component {
 	static contextType = AuthContext;
@@ -19,8 +60,25 @@ export default class Register extends Component {
 		super(props);
 		this.state = {
 			avatar: null,
+			inputs: {
+				email: "",
+				username: "",
+				firstName: "",
+				lastName: "",
+				tel: "",
+				password: "",
+				confirmPassword: ""
+			},
 			errors: {}
 		};
+	}
+
+	componentDidMount() {
+		console.log(this.props.navigation.dangerouslyGetState());
+	}
+
+	navigateBack = () => {
+		this.props.navigation.pop()
 	}
 
 	handlePickAvatar = async () => {
@@ -35,165 +93,75 @@ export default class Register extends Component {
 		return result;
 	};
 
-	showOptions = () => {
-		showPopupMenu(
-			[
-				{ id: 1, label: "Edit" },
-				{ id: 2, label: "Remove" }
-			],
-			this.handleMoreItemSelect,
-			this.profileBtn
-		);
+	handleChange = (inputType, value) => {
+		console.log(inputType, value);
+		const { inputs } = this.state;
+		inputs[inputType] = value;
+		this.setState({ inputs: inputs }, () => console.log(this.state.inputs));
 	};
 
-	handleMoreItemSelect = (item) => {
-		switch (item.id) {
-			case 1:
-				this.handlePickAvatar().then(res => console.log(res));
-				return;
-			case 2:
-				this.setState({ avatar: null });
+	handleSubmit = async () => {
+		const { signUp } = this.context;
+		const { inputs } = this.state;
+		let isValid = await validateSignUp(inputs)
+		console.log("Form valid:", isValid);
+		if (isValid) {
+			signUp(inputs)
+			Object.keys(inputs).forEach((key) => inputs[key] = "" )
+			this.setState({ inputs }, () => console.log(this.state))
+		} else {
+			let yupErrors = await getErrors(inputs);
+			console.log(yupErrors);
+			this.setState({errors: yupErrors}, () => {
+				console.log(this.state.errors)
+				let errorPageNum = this.getErrorPageNum(Object.keys(yupErrors)[0])
+				this.scroll.scrollTo({x: errorPageNum * width, y: 0, animated: true})
+			})
 		}
 	};
 
-	refOptions = el => this.profileBtn = el;
+	getErrorPageNum = (key) => {
+		let page = slides.find(item => item.key === key)
+		if (page) return page.pageNum
+		else return 4
+	}
+
+	scrollNext = (page) => {
+		this.scroll.scrollTo({ x: (page+1) * width , y: 0, animated: true });
+	}
+
+	scrollBack = (page) => {
+		this.scroll.scrollTo({ x: (page-1) * width, y: 0, animated: true})
+	}
 
 	render() {
-		const { signUp } = this.context;
+		const _renderSlides = () => {
+			return slides.map(item =>
+				<SignUpSlide
+					errors={this.state.errors}
+					key={item.key}
+					item={item}
+					isPassword={item.key === "password"}
+					onChangeHandler={this.handleChange}
+					onSubmit={this.handleSubmit}
+					onNext={this.scrollNext.bind(this, item.pageNum)}
+					onBack={item.pageNum === 0 ? this.navigateBack : this.scrollBack.bind(this, item.pageNum)}
+				/>
+			);
+		};
 		return (
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<Block flex style={styles.container}>
-					<Block>
-						<Text h1 style={styles.signUpHeader}>Sign Up</Text>
-					</Block>
-					<TouchableOpacity
-						style={styles.profileImagePicker}
-						onPress={this.handlePickAvatar}
-						onLongPress={this.showOptions}
-						ref={this.refOptions}
+				<SafeAreaView style={{ flex: 1 }}>
+					<ScrollView
+						style={{ flex: 1 }}
+						horizontal={true}
+						pagingEnabled={true}
+						ref={(node) => this.scroll = node}
 					>
-						<Image source={{ uri: this.state.avatar }} style={styles.avatar}/>
-						<Ionicons
-							name="md-add"
-							size={40}
-							color={Theme.COLOURS.WHITE}
-							style={this.state.avatar && { display: "none" }}
-						/>
-					</TouchableOpacity>
-					<Formik
-						initialValues={{
-							email: "",
-							username: "",
-							firstName: "",
-							lastName: "",
-							tel: "",
-							password1: "",
-							password2: "",
-							avatar: null
-						}}
-						onSubmit={(values, actions) => {
-							values = { ...values, avatar: this.state.avatar };
-							console.log("Inputs", values);
-							actions.resetForm();
-							signUp(values);
-						}}
-						validationSchema={signUpSchema}
-					>
-						{(props) => (
-							<ScrollView showsVerticalScrollIndicator={false}>
-								<Input
-									autoCompleteType={"email"}
-									placeholder={"Email"}
-									value={props.values.email}
-									onChangeText={props.handleChange("email")}
-									onSubmitEditing={Keyboard.dismiss}
-									style={styles.input}
-									onBlur={props.handleBlur("email")}
-								/>
-								<Text style={styles.error} muted>{props.touched.email && props.errors.email}</Text>
-								<Input
-									autoCompleteType={"username"}
-									value={props.values.username}
-									onChangeText={props.handleChange("username")}
-									placeholder={"Username"}
-									style={styles.input}
-									onSubmitEditing={Keyboard.dismiss}
-									onBlur={props.handleBlur("username")}
-								/>
-								<Text style={styles.error}
-								      muted>{props.touched.username && props.errors.username}</Text>
-								<Input
-									autoCompleteType={"name"}
-									value={props.values.firstName}
-									onChangeText={props.handleChange("firstName")}
-									placeholder={"First Name"}
-									style={styles.input}
-									onSubmitEditing={Keyboard.dismiss}
-									onBlur={props.handleBlur("firstName")}
-								/>
-								<Text style={styles.error}
-								      muted>{props.touched.firstName && props.errors.firstName}</Text>
-								<Input
-									placeholder={"Last Name"}
-									value={props.values.lastName}
-									onChangeText={props.handleChange("lastName")}
-									style={styles.input}
-									onSubmitEditing={Keyboard.dismiss}
-									onBlur={props.handleBlur("lastName")}
-								/>
-								<Text muted
-								      style={styles.error}>{props.touched.lastName && props.errors.lastName}</Text>
-								<Input
-									autoCompleteType={"password"}
-									placeholder="Password"
-									style={styles.input}
-									onSubmitEditing={Keyboard.dismiss}
-									value={props.values.password1}
-									onChangeText={props.handleChange("password1")}
-									onBlur={props.handleBlur("password1")}
-									password
-									viewPass
-								/>
-								<Text style={styles.error}
-								      muted>{props.touched.password1 && props.errors.password1}</Text>
-								<Input
-									placeholder="Confirm Password"
-									style={styles.input}
-									value={props.values.password2}
-									onSubmitEditing={Keyboard.dismiss}
-									onChangeText={props.handleChange("password2")}
-									onBlur={props.handleBlur("password2")}
-									password
-								/>
-								<Text style={styles.error}
-								      muted>{props.touched.password2 && props.errors.password2}</Text>
-								<Input
-									autoCompleteType={"tel"}
-									placeholder={"Mobile number"}
-									maxLength={15}
-									style={styles.input}
-									onSubmitEditing={Keyboard.dismiss}
-									value={props.values.tel}
-									onChangeText={props.handleChange("tel")}
-									onBlur={props.handleBlur("tel")}
-								/>
-								<Text muted style={styles.error}>{props.touched.tel && props.errors.tel}</Text>
-								<Block center>
-									<Button
-										style={styles.button}
-										color={Theme.COLOURS.SECONDARY}
-										textStyle={{ color: Theme.COLOURS.BLACK }}
-										onPress={props.handleSubmit}
-									>
-										<Text style={styles.btnText}>Register</Text>
-									</Button>
-								</Block>
-							</ScrollView>
-						)}
-					</Formik>
-				</Block>
+						{_renderSlides()}
+					</ScrollView>
+				</SafeAreaView>
 			</TouchableWithoutFeedback>
 		);
 	}
 }
-

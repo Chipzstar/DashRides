@@ -10,6 +10,8 @@ export default {
 		SUCCESS: '#2DCE89',
 		WARNING: '#FB6340',
 		WHITE: '#FFFFFF',
-		BLACK: '#000000'
+		BLACK: '#000000',
+		SIGN_UP: '#FB8B23',
+		LINK: '#2393FB'
 	}
 };
