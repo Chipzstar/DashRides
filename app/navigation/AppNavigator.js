@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useFocusEffect } from "@react-navigation/core";
-import { Alert, AsyncStorage, BackHandler } from "react-native";
+import { Alert, AsyncStorage } from "react-native";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
@@ -12,11 +11,11 @@ import { usersSchema } from "../constants/Schemas";
 import Login from "../screens/Auth/LoginScreen/Login";
 import Register from "../screens/Auth/SignUpScreen/Register";
 import Loading from "../startup/Loading";
-import Main from "../screens/Main/Main";
-import ChooseRide from "../screens/Main/ChooseRide";
-import Profile from "../screens/Main/Profile";
+import Main from "../screens/Main/Home/Main";
+import SearchRide from "../screens/Main/SearchRide/SearchRide";
+import Profile from "../screens/Tabs/Profile";
 import IntroSlider from "../startup/IntroSlider";
-import Socials from "../screens/Main/Socials";
+import Socials from "../screens/Tabs/Socials";
 import Onboarding from "../screens/Onboarding/Onboarding";
 //components
 import DashIcons from "../components/DashIcons";
@@ -25,6 +24,7 @@ import { uploadPhotoAsync } from "../config/Fire";
 import { clearWelcomeStatus } from "../store/AsyncStorage";
 //styles
 import styles from "../startup/styles";
+import RiderPreferences from "../screens/Main/RiderPreferences";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -49,24 +49,16 @@ const RootStackScreen = ({ userToken, showApp, authRoute, onAuth }) => (
 
 const AuthStackScreen = ({ routeName, onAuth }) => {
 	console.log("ROUTE NAME", routeName)
-	return routeName === "SignIn" ? (
-		<AuthStack.Navigator headerMode={"none"} initialRouteName={"SignIn"}>
+	return routeName ? (
+		<AuthStack.Navigator headerMode={"none"} initialRouteName={routeName}>
 			<AuthStack.Screen name={"SignIn"} component={Login}/>
 			<AuthStack.Screen name={"SignUp"} component={Register}/>
-			<AuthStack.Screen name={"Onboarding"}>
-				{(props) => <Onboarding height={200} width={200} styles={styles} onAuth={onAuth}/>}
-			</AuthStack.Screen>
-		</AuthStack.Navigator>
-	) : routeName === "SignUp" ? (
-		<AuthStack.Navigator headerMode={"none"} initialRouteName={"SignUp"}>
-			<AuthStack.Screen name={"SignUp"} component={Register}/>
-			<AuthStack.Screen name={"SignIn"} component={Login}/>
 			<AuthStack.Screen name={"Onboarding"}>
 				{(props) => <Onboarding height={200} width={200} styles={styles} onAuth={onAuth}/>}
 			</AuthStack.Screen>
 		</AuthStack.Navigator>
 	) : (
-		<AuthStack.Navigator headerMode={"none"} initialRoute={"SignIn"}>
+		<AuthStack.Navigator headerMode={"none"} initialRoute={"Onboarding"}>
 			<AuthStack.Screen name={"Onboarding"}>
 				{(props) => <Onboarding height={200} width={200} styles={styles}/>}
 			</AuthStack.Screen>
@@ -79,28 +71,34 @@ const AuthStackScreen = ({ routeName, onAuth }) => {
 const MainStackScreen = () => (
 	<MainStack.Navigator headerMode={"none"}>
 		<MainStack.Screen name={"Home"} component={Main}/>
-		<MainStack.Screen name={"ChooseRide"} component={ChooseRide}/>
+		<MainStack.Screen name={"SearchRide"} component={SearchRide}/>
+		<MainStack.Screen name={"Preferences"} component={RiderPreferences}/>
 		<MainStack.Screen name={"Profile"} component={Profile}/>
 	</MainStack.Navigator>
 );
 
 const HomeTabScreen = () => (
 	<Tab.Navigator
-		initialRouteName={"Home"}
+		initialRouteName={"Main"}
 		headerMode={"none"}
 		screenOptions={({ route }) => ({
-			tabBarIcon: ({ color, size }) => {
+			tabBarIcon: ({ color }) => {
 				let iconName;
-				route.name === "Home" ?
+				route.name === "Main" ?
 					iconName = "location" :
 					route.name === "Profile" ?
 						iconName = "user" :
 						iconName = "chat";
-				return <DashIcons name={iconName} size={size} color={color}/>;
+				return <DashIcons name={iconName} size={40} color={color}/>;
 			}
-		})}>
+		})}
+		tabBarOptions={{
+			showLabel: false,
+			style: {height: 70}
+		}}
+	>
 		<Tab.Screen name={"Social"} component={Socials}/>
-		<Tab.Screen name={"Home"} component={Main}/>
+		<Tab.Screen name={"Main"} component={MainStackScreen}/>
 		<Tab.Screen name={"Profile"} component={Profile}/>
 	</Tab.Navigator>
 );
@@ -139,10 +137,11 @@ const AppNavigator = props => {
 					});
 			},
 			signUp: async (inputs) => {
+				console.log(inputs);
 				try {
 					const { user } = await firebase.auth().createUserWithEmailAndPassword(inputs.email, inputs.password);
 					console.log("AuthID:", user.uid);
-					//upload user profile to firebase storage
+					//upload user profile image to firebase storage
 					const path = `user/${user.uid}/image/jpg`;
 					if (inputs.avatar) {
 						const { downloadURL } = await uploadPhotoAsync(inputs.avatar, path);
@@ -156,16 +155,17 @@ const AppNavigator = props => {
 						.child(user.uid)
 						.set({
 							...usersSchema,
+							username: inputs.username,
 							firstname: inputs.firstName,
 							surname: inputs.lastName,
 							tel: inputs.tel,
-							profilePicURL: inputs.avatar,
-							provider: "Firebase"
+							profilePicURL: inputs.avatar
 						});
 					console.log("User added to database");
 					await user.updateProfile({
 						displayName: inputs.username
 					});
+					console.log("Display name updated")
 					//change state of for loading screen to be false
 					setIsLoading(false);
 					//sets the auth uid as the userToken's value

@@ -7,6 +7,7 @@ import handshake from "../assets/images/slider-images/handshake.png";
 import Theme from "../constants/Theme";
 import { Text } from "galio-framework";
 import Onboarding from "../screens/Onboarding/Onboarding";
+import { StatusBar } from "expo-status-bar";
 
 const slides = [
 	{
@@ -47,6 +48,7 @@ class IntroSlider extends React.Component {
 		return item.key !== "4" ?
 			(
 				<View style={styles.slide}>
+					<StatusBar translucent style="dark"/>
 					<Image style={styles.image} source={item.image} resizeMode={"contain"} height={IMG_HEIGHT}
 					       width={IMG_WIDTH}/>
 					{item.title !== undefined && <Text style={styles.title}>{item.title}</Text>}

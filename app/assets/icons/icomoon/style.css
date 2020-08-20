@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?x75b5i');
-  src:  url('fonts/icomoon.eot?x75b5i#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?x75b5i') format('truetype'),
-    url('fonts/icomoon.woff?x75b5i') format('woff'),
-    url('fonts/icomoon.svg?x75b5i#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?j4slq8');
+  src:  url('fonts/icomoon.eot?j4slq8#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?j4slq8') format('truetype'),
+    url('fonts/icomoon.woff?j4slq8') format('woff'),
+    url('fonts/icomoon.svg?j4slq8#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,12 +25,23 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-chat:before {
-  content: "\e90f";
+.icon-plus:before {
+  content: "\e904";
+  color: #4b545a;
 }
 .icon-user:before {
-  content: "\e910";
+  content: "\e900";
+  color: #5b5b5b;
 }
-.icon-place-marker:before {
-  content: "\e911";
+.icon-chat:before {
+  content: "\e901";
+  color: #5b5b5b;
+}
+.icon-location:before {
+  content: "\e902";
+  color: #5b5b5b;
+}
+.icon-back:before {
+  content: "\e903";
+  color: #4b545a;
 }

@@ -1,17 +1,18 @@
-import React from "react";
-import { Image, TouchableOpacity } from "react-native";
+import React, {useCallback} from "react";
+import { BackHandler, Image, TouchableOpacity } from "react-native";
 import PropTypes from "prop-types";
 import { Block, Text } from "galio-framework";
 import Theme from "../../constants/Theme";
 import { useNavigation } from '@react-navigation/native';
 import dash_rides from "../../assets/images/slider-images/dash-rides.png"
+import { StatusBar } from "expo-status-bar";
 
 const Onboarding = ({ image, height, width, styles, onAuth }) => {
-	console.log("onAuth:",onAuth)
+	console.log("Onboarding onAuth:", onAuth)
 	const navigation = useNavigation();
-	console.log(navigation.dangerouslyGetState())
 	return (
 		<Block style={styles.slide}>
+			<StatusBar translucent style="dark"/>
 			<Image
 				style={styles.image}
 				source={image}
