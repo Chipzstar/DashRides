@@ -17,14 +17,15 @@ import Profile from "../screens/Tabs/Profile";
 import IntroSlider from "../startup/IntroSlider";
 import Socials from "../screens/Tabs/Socials";
 import Onboarding from "../screens/Onboarding/Onboarding";
+import RiderPreferences from "../screens/Main/RiderPreferences";
 //components
 import DashIcons from "../components/DashIcons";
 //functions
 import { uploadPhotoAsync } from "../config/Fire";
 import { clearWelcomeStatus } from "../store/AsyncStorage";
+import getTabBarVisibility from "../helpers/handleTabBarVisibility";
 //styles
 import styles from "../startup/styles";
-import RiderPreferences from "../screens/Main/RiderPreferences";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -82,6 +83,7 @@ const HomeTabScreen = () => (
 		initialRouteName={"Main"}
 		headerMode={"none"}
 		screenOptions={({ route }) => ({
+			tabBarVisible: getTabBarVisibility(route),
 			tabBarIcon: ({ color }) => {
 				let iconName;
 				route.name === "Main" ?

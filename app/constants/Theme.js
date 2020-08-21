@@ -1,9 +1,10 @@
 export default {
 	COLOURS: {
 		PRIMARY: '#FF931E',
-		SECONDARY: '#2393FB',
+		SECONDARY: '#4B545A',
 		BUTTON: '#FB8B23',
 		HEADER: '#3E4958',
+		HORIZONTAL_RULE: "#F2F2F2",
 		DISABLED: "#888888",
 		LABEL: '#EBA3F6',
 		INFO: '#11CDEF',
@@ -13,6 +14,8 @@ export default {
 		WHITE: '#FFFFFF',
 		BLACK: '#000000',
 		SIGN_UP: '#FB8B23',
-		LINK: '#2393FB'
+		LINK: '#2393FB',
+		GREEN: "#23D40F",
+		DARK_GREY: "#343535",
 	}
 };

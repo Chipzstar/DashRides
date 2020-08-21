@@ -92,7 +92,6 @@ const reverseGeocodeAsync = async ({ lat, long }) => {
 		}))[0];
 		console.log(addressObj);
 		for(let key of addrKeys) {
-			console.log(addressObj[key])
 			addressObj[key] !== null ?
 			addressString = addressString.concat(String(addressObj[key]), ", ") : null;
 		}
@@ -105,9 +104,10 @@ const reverseGeocodeAsync = async ({ lat, long }) => {
 const SearchRide = ({ route, navigation }) => {
 	const [source, setLocation] = useState("");
 	const [dest, setDestination] = useState("");
-	const [address, setAddress] = useState("")
+	const [address, setAddress] = useState("");
+	const [hasInput, setHasInput] = useState(false);
 	const validateNext = () => {
-		if (source && dest) {
+		if (source) {
 			navigation.navigate("Preferences", {source, dest});
 		} else {
 			Alert.alert("Missing Location field!", "Please make sure " +
@@ -145,7 +145,8 @@ const SearchRide = ({ route, navigation }) => {
 						<Block flex center>
 							<Text muted style={{ alignSelf: "flex-start", left: 10 }}>start</Text>
 							<PlacesInput
-								query={address}
+								onChangeText={(text) => text ? setHasInput(true) : null}
+								query={!hasInput && address}
 								stylesContainer={{
 									position: "relative",
 									alignSelf: "stretch",
