@@ -23,6 +23,7 @@ const signUpSlide = ({ item, isPassword, onChangeHandler, onNext, onBack, onSubm
 				color={Theme.COLOURS.BLACK}
 				password={isPassword}
 				styles={{ borderColor: Theme.COLOURS.WHITE }}
+				viewPass={isPassword}
 			/>
 			{errors[item.key] && <Text bold size={18} color={Theme.COLOURS.BLACK}>{errors[item.key]}</Text>}
 			{isPassword &&
@@ -33,18 +34,19 @@ const signUpSlide = ({ item, isPassword, onChangeHandler, onNext, onBack, onSubm
 				onChangeText={(text) => onChangeHandler("confirmPassword", text)}
 				color={Theme.COLOURS.BLACK}
 				password={true}
+				viewPass={true}
 				styles={{ borderColor: Theme.COLOURS.WHITE }}
 			/>}
 			{isPassword && errors["confirmPassword"] && <Text bold size={18} color={Theme.COLOURS.BLACK}>{errors["confirmPassword"]}</Text>}
 		</Block>
-		<Block style={{ alignSelf: "flex-end", textAlign: "right" }}>
-			<TouchableOpacity onPress={onBack}>
+		<Block style={[{ alignSelf: "flex-end", textAlign: "right"}, !onBack && {padding: 20}]}>
+			{onBack && <TouchableOpacity onPress={onBack}>
 				<Text
-					style={{ paddingVertical: 20 }}
+					style={{ padding: 20 }}
 					color={Theme.COLOURS.WHITE}>
 					Go back
 				</Text>
-			</TouchableOpacity>
+			</TouchableOpacity>}
 		</Block>
 		<Block>
 			{item.pageNum === 5 ?  (
@@ -66,7 +68,7 @@ signUpSlide.propTypes = {
 	errors: PropTypes.object.isRequired,
 	onChangeHandler: PropTypes.func.isRequired,
 	onNext: PropTypes.func.isRequired,
-	onBack: PropTypes.func.isRequired,
+	onBack: PropTypes.func,
 	onSubmit: PropTypes.func.isRequired
 };
 

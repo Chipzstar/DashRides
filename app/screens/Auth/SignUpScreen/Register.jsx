@@ -5,7 +5,7 @@ import UserPermissions from "../../../permissions/UserPermissions";
 import * as ImagePicker from "expo-image-picker";
 import SignUpSlide from "../../../components/SignUpSlide";
 import { width } from "../styles";
-import { validateSignUp, getErrors } from "../validation";
+import { getErrors, validateSignUp } from "../validation";
 
 const slides = [
 	{
@@ -66,6 +66,7 @@ export default class Register extends Component {
 				firstName: "",
 				lastName: "",
 				tel: "",
+				avatar: null,
 				password: "",
 				confirmPassword: ""
 			},
@@ -78,8 +79,8 @@ export default class Register extends Component {
 	}
 
 	navigateBack = () => {
-		this.props.navigation.pop()
-	}
+		this.props.navigation.pop();
+	};
 
 	handlePickAvatar = async () => {
 		this.setState({ isModalVisible: false });
@@ -94,60 +95,70 @@ export default class Register extends Component {
 	};
 
 	handleChange = (inputType, value) => {
-		console.log(inputType, value);
 		const { inputs } = this.state;
-		inputs[inputType] = value;
-		this.setState({ inputs: inputs }, () => console.log(this.state.inputs));
+		inputs[inputType] = value.trimEnd();
+		this.setState({ inputs: inputs });
 	};
 
 	handleSubmit = async () => {
 		const { signUp } = this.context;
 		const { inputs } = this.state;
-		let isValid = await validateSignUp(inputs)
+		let isValid = await validateSignUp(inputs);
 		console.log("Form valid:", isValid);
 		if (isValid) {
-			signUp(inputs)
-			Object.keys(inputs).forEach((key) => inputs[key] = "" )
-			this.setState({ inputs }, () => console.log(this.state))
+			await signUp(inputs);
+			Object.keys(inputs).forEach((key) => inputs[key] = "");
+			console.log(inputs)
+			this.setState({ inputs: inputs }, () => console.log(this.state));
 		} else {
 			let yupErrors = await getErrors(inputs);
-			console.log(yupErrors);
-			this.setState({errors: yupErrors}, () => {
-				console.log(this.state.errors)
-				let errorPageNum = this.getErrorPageNum(Object.keys(yupErrors)[0])
-				this.scroll.scrollTo({x: errorPageNum * width, y: 0, animated: true})
-			})
+			this.setState({ errors: yupErrors }, () => {
+				console.log(this.state.errors);
+				let errorPageNum = this.getErrorPageNum(Object.keys(yupErrors)[0]);
+				this.scroll.scrollTo({ x: errorPageNum * width, y: 0, animated: true });
+			});
 		}
 	};
 
 	getErrorPageNum = (key) => {
-		let page = slides.find(item => item.key === key)
-		if (page) return page.pageNum
-		else return 4
-	}
+		let page = slides.find(item => item.key === key);
+		if (page) return page.pageNum;
+		else return 4;
+	};
 
 	scrollNext = (page) => {
-		this.scroll.scrollTo({ x: (page+1) * width , y: 0, animated: true });
-	}
+		this.scroll.scrollTo({ x: (page + 1) * width, y: 0, animated: true });
+	};
 
 	scrollBack = (page) => {
-		this.scroll.scrollTo({ x: (page-1) * width, y: 0, animated: true})
-	}
+		this.scroll.scrollTo({ x: (page - 1) * width, y: 0, animated: true });
+	};
 
 	render() {
+		const { navigation } = this.props;
 		const _renderSlides = () => {
-			return slides.map(item =>
-				<SignUpSlide
-					errors={this.state.errors}
-					key={item.key}
-					item={item}
-					isPassword={item.key === "password"}
-					onChangeHandler={this.handleChange}
-					onSubmit={this.handleSubmit}
-					onNext={this.scrollNext.bind(this, item.pageNum)}
-					onBack={item.pageNum === 0 ? this.navigateBack : this.scrollBack.bind(this, item.pageNum)}
-				/>
-			);
+			return slides.map(item => {
+				return item.pageNum === 0 && navigation.dangerouslyGetState().index === 0 ?
+					<SignUpSlide
+						errors={this.state.errors}
+						key={item.key}
+						item={item}
+						isPassword={item.key === "password"}
+						onChangeHandler={this.handleChange}
+						onSubmit={this.handleSubmit}
+						onNext={this.scrollNext.bind(this, item.pageNum)}
+					/> :
+					<SignUpSlide
+						errors={this.state.errors}
+						key={item.key}
+						item={item}
+						isPassword={item.key === "password"}
+						onChangeHandler={this.handleChange}
+						onSubmit={this.handleSubmit}
+						onNext={this.scrollNext.bind(this, item.pageNum)}
+						onBack={item.pageNum === 0 ? this.navigateBack : this.scrollBack.bind(this, item.pageNum)}
+					/>;
+			});
 		};
 		return (
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>

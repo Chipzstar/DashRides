@@ -2,10 +2,8 @@ import React from "react";
 import "react-native-gesture-handler";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { AsyncStorage, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./app/navigation/AppNavigator";
-import Theme from "./app/constants/Theme";
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf"),
@@ -19,8 +17,8 @@ let customFonts = {
 };
 
 export default class App extends React.Component {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.state = {
 			loading: true,
 			showApp: false
@@ -28,7 +26,6 @@ export default class App extends React.Component {
 	}
 
 	async componentDidMount() {
-		await AsyncStorage.clear()
 		try {
 			await SplashScreen.preventAutoHideAsync();
 		} catch (e) {
@@ -62,12 +59,3 @@ async function performAPICalls() {}
 async function downloadAssets() {
 	await Font.loadAsync(customFonts);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: Theme.COLOURS.PRIMARY,
-		alignItems: "center",
-		justifyContent: "center"
-	}
-});

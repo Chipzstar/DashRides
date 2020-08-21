@@ -30,14 +30,17 @@
     "react-dom": "~16.11.0",
     "react-native": "~0.62.2",
     "react-native-app-intro-slider": "^4.0.4",
+    "react-native-geocoding": "^0.4.0",
+    "react-native-geolocation-service": "^5.0.0",
     "react-native-gesture-handler": "^1.7.0",
-    "react-native-google-places": "^3.1.2",
+    "react-native-google-places-autocomplete": "^1.8.0",
     "react-native-maps": "0.27.1",
-    "react-native-material-textfield": "^0.16.1",
+    "react-native-places-input": "^1.1.6",
     "react-native-popup-menu-android": "^1.0.3",
     "react-native-reanimated": "^1.10.2",
     "react-native-safe-area-context": "^3.1.4",
     "react-native-screens": "^2.10.1",
+    "react-native-svg": "^12.1.0",
     "react-native-unimodules": "~0.10.1",
     "react-native-web": "~0.11.7",
     "yup": "^0.29.3"
@@ -45,6 +48,7 @@
   "devDependencies": {
     "@babel/core": "~7.9.0",
     "babel-jest": "~25.2.6",
+    "babel-plugin-inline-dotenv": "^1.6.0",
     "jest": "~25.2.6",
     "prettier": "^2.0.5",
     "react-test-renderer": "~16.11.0"

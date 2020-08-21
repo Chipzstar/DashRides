@@ -1,6 +1,5 @@
 import {StyleSheet, Dimensions} from "react-native";
 import Theme from "../../constants/Theme";
-import { Button } from "galio-framework";
 import React from "react";
 
 export const {width, height} = Dimensions.get("window"); //Max Width of phone screen

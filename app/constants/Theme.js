@@ -2,7 +2,8 @@ export default {
 	COLOURS: {
 		PRIMARY: '#FF931E',
 		SECONDARY: '#2393FB',
-		BUTTON: '#EB3648',
+		BUTTON: '#FB8B23',
+		HEADER: '#3E4958',
 		DISABLED: "#888888",
 		LABEL: '#EBA3F6',
 		INFO: '#11CDEF',
