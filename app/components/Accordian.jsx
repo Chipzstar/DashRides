@@ -1,89 +1,65 @@
-import React, { Component } from "react";
-import {
-	View,
-	TouchableOpacity,
-	StyleSheet,
-	LayoutAnimation,
-	Platform,
-	UIManager,
-	FlatList,
-	ScrollView
-} from "react-native";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { FlatList, LayoutAnimation, Platform, StyleSheet, TouchableOpacity, UIManager, View } from "react-native";
 import { Text } from "galio-framework";
 import Theme from "../constants/Theme";
 import DashIcons from "./DashIcons";
 
-export default class Accordian extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			data: props.data,
-			expanded: false
-		};
-		if (Platform.OS === "android") {
-			UIManager.setLayoutAnimationEnabledExperimental(true);
-		}
-	}
-
-	render() {
-		return (
-			<View style={styles.container}>
-				<TouchableOpacity
-					activeOpacity={0.5}
-					style={this.state.expanded ? styles.rowExpanded : styles.rowCollapsed}
-					onPress={() => this.toggleExpand()}
-				>
-					<DashIcons
-						name={"plus"}
-						size={25}
-						color={this.state.expanded ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}
-					/>
-					<Text
-						style={[styles.title, { color: this.state.expanded ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY }]}>
-						{this.props.title}
-					</Text>
-				</TouchableOpacity>
-				<View style={styles.parentHr}/>
-				{this.state.expanded &&
-				<View style={{}}>
-					<FlatList
-						data={this.state.data}
-						numColumns={1}
-						scrollEnabled={false}
-						renderItem={({ item , index}) =>
-							<View>
-								{item.description && <Text size={15} style={{paddingTop: 10, paddingLeft: 20}}>{item.description}</Text>}
-								<TouchableOpacity
-									activeOpacity={0.75}
-									style={styles.button}
-									onPress={() => this.onClick(index)}>
-									<Text size={18} color={item.isSelected ? Theme.COLOURS.BUTTON : Theme.COLOURS.SECONDARY}>{item.name}</Text>
-								</TouchableOpacity>
-								<View style={[styles.itemDivider, {borderColor: item.isSelected ? Theme.COLOURS.BUTTON : Theme.COLOURS.HORIZONTAL_RULE}]}/>
-							</View>
-						}/>
-				</View>}
-			</View>
-		);
-	}
-
-	onClick = (INDEX) => {
-		const data = this.state.data.slice();
-		let newData = [];
-		if(!data[INDEX]["isSelected"]) {
-			newData = data.map((item, index) => {
-				return INDEX !== index ? {...item, isSelected: false} : { ...item, isSelected: true }
-			})
-		}
-		console.log("New data:", newData);
-		this.setState({ data: newData });
-	};
-
-	toggleExpand = () => {
-		LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-		this.setState({ expanded: !this.state.expanded });
-	};
+if (Platform.OS === "android") {
+	UIManager.setLayoutAnimationEnabledExperimental(true);
 }
+
+const Accordian = props => {
+	const [expanded, setExpanded] = useState(false);
+
+	const toggleExpand = () => {
+		LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+		setExpanded(!expanded);
+	};
+	return (
+		<View style={styles.container}>
+			<TouchableOpacity
+				activeOpacity={0.5}
+				style={expanded ? styles.rowExpanded : styles.rowCollapsed}
+				onPress={toggleExpand}
+			>
+				<DashIcons
+					name={"plus"}
+					size={25}
+					color={expanded ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}
+				/>
+				<Text
+					style={[styles.title, { color: expanded ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY }]}>
+					{props.title}
+				</Text>
+			</TouchableOpacity>
+			<View style={styles.parentHr}/>
+			{expanded &&
+			<View>
+				<FlatList
+					extraData={props.content}
+					data={props.content}
+					numColumns={1}
+					scrollEnabled={false}
+					renderItem={({ item, index }) => (
+						<View>
+							{item.description &&
+							<Text size={15} style={{ paddingTop: 10, paddingLeft: 20 }}>{item.description}</Text>}
+							<TouchableOpacity
+								activeOpacity={0.75}
+								style={styles.button}
+								onPress={() => props.update(index)}>
+								<Text size={18} color={item.isSelected ? Theme.COLOURS.BUTTON : Theme.COLOURS.SECONDARY}>{item.name}</Text>
+							</TouchableOpacity>
+							<View
+								style={[styles.itemDivider, { borderColor: item.isSelected ? Theme.COLOURS.BUTTON : Theme.COLOURS.HORIZONTAL_RULE }]}/>
+						</View>
+					)}
+				/>
+			</View>}
+		</View>
+	);
+};
 
 const styles = StyleSheet.create({
 	container: {
@@ -97,7 +73,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		paddingHorizontal: 35,
 		flexDirection: "row",
-		justifyContent: "flex-start",
+		justifyContent: "flex-start"
 	},
 	title: {
 		fontSize: 24,
@@ -150,3 +126,11 @@ const styles = StyleSheet.create({
 		width: "100%"
 	}
 });
+
+Accordian.propTypes = {
+	title: PropTypes.string.isRequired,
+	content: PropTypes.array.isRequired,
+	update: PropTypes.func.isRequired
+}
+
+export default Accordian;

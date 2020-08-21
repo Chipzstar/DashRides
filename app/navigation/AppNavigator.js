@@ -17,7 +17,7 @@ import Profile from "../screens/Tabs/Profile";
 import IntroSlider from "../startup/IntroSlider";
 import Socials from "../screens/Tabs/Socials";
 import Onboarding from "../screens/Onboarding/Onboarding";
-import RiderPreferences from "../screens/Main/RiderPreferences";
+import RiderPreferences from "../screens/Main/RiderPreferences/RiderPreferences";
 //components
 import DashIcons from "../components/DashIcons";
 //functions
@@ -26,6 +26,7 @@ import { clearWelcomeStatus } from "../store/AsyncStorage";
 import getTabBarVisibility from "../helpers/handleTabBarVisibility";
 //styles
 import styles from "../startup/styles";
+import MakePayment from "../screens/Main/MakePayment";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
@@ -74,7 +75,7 @@ const MainStackScreen = () => (
 		<MainStack.Screen name={"Home"} component={Main}/>
 		<MainStack.Screen name={"SearchRide"} component={SearchRide}/>
 		<MainStack.Screen name={"Preferences"} component={RiderPreferences}/>
-		<MainStack.Screen name={"Profile"} component={Profile}/>
+		<MainStack.Screen name={"Payment"} component={MakePayment}/>
 	</MainStack.Navigator>
 );
 
