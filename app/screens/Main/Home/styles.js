@@ -16,8 +16,8 @@ export default (styles = StyleSheet.create({
 		fontFamily: "Roboto",
 		paddingTop: 10,
 		paddingHorizontal: 20,
-		fontSize: 20,
-		color: "#979797"
+		fontSize: 16,
+		color: Theme.COLOURS.SUB_HEADER
 	},
 	map: {
 		flex: 0.82,

@@ -11,3 +11,16 @@ export const usersSchema = {
 		1: ""
 	}
 }
+
+export const tripSchema = {
+	tripId: "",
+	riderKey: "",
+	driverKey: "",
+	pickUpCoordinate: [0.0,0.0],
+	destinationCoordinate: [0.0,0.0],
+	canCancelTrip: true,
+	tripAccepted: false,
+	driverFare: Number(0.00),
+	tripFare: Number(0.00),
+	applicationFee: Number(0.00)
+}

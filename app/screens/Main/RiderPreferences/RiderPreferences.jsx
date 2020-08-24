@@ -144,7 +144,7 @@ const RiderPreferences = ({ route, navigation }) => {
 				<View style={{ height: 50, borderColor: "#4B545A", borderWidth: 1, opacity: 0.5 }}/>
 				<TouchableOpacity
 					style={{ flexGrow: 1, flexDirection: "row", justifyContent: "center" }}
-					onPress={() => navigation.navigate("Payment", {...selections})}
+					onPress={() => navigation.navigate("Payment", {...selections, ...route.params})}
 				>
 					<Text style={styles.btnText}>Confirm</Text>
 				</TouchableOpacity>
