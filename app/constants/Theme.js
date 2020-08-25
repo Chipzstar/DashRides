@@ -5,6 +5,7 @@ export default {
 		BUTTON: '#FB8B23',
 		HEADER: '#3E4958',
 		SUB_HEADER: "#979797",
+		SUB_TEXT: "#6B7377",
 		HORIZONTAL_RULE: "#F2F2F2",
 		DISABLED: "#888888",
 		LABEL: '#EBA3F6',
