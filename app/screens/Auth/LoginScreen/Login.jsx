@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Keyboard, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { Block, Button, Input, Text } from "galio-framework";
 import Theme from "../../../constants/Theme";
 import AuthContext from "../../../navigation/context";
@@ -13,6 +13,7 @@ export default class Login extends Component {
 	constructor(props) {
 		super(props);
 	}
+
 	componentDidMount() {
 		console.log(this.props.navigation.dangerouslyGetState());
 	}
@@ -69,7 +70,14 @@ export default class Login extends Component {
 								</Block>
 								<Block center style={styles.link}>
 									<Text style={styles.text}>New user?&nbsp;
-										<Text color={Theme.COLOURS.LINK} onPress={() => navigation.navigate("SignUp")}>Sign up</Text>
+										<Text color={Theme.COLOURS.LINK} onPress={() => navigation.navigate("SignUp")}>Sign
+											up</Text>
+									</Text>
+								</Block>
+								<Block center style={styles.link}>
+									<Text style={styles.text}>Forgot Password?&nbsp;
+										<Text color={Theme.COLOURS.LINK}
+										      onPress={() => navigation.navigate("ForgotPassword")}>Reset here</Text>
 									</Text>
 								</Block>
 							</Block>

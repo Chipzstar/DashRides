@@ -10,6 +10,7 @@ import { usersSchema } from "../constants/Schemas";
 //Screens
 import Login from "../screens/Auth/LoginScreen/Login";
 import Register from "../screens/Auth/SignUpScreen/Register";
+import ForgotPassword from "../screens/Auth/ForgotPasswordScreen/ForgotPassword";
 import Loading from "../startup/Loading";
 import Main from "../screens/Main/Home/Main";
 import SearchRide from "../screens/Main/SearchRide/SearchRide";
@@ -55,6 +56,7 @@ const AuthStackScreen = ({ routeName, onAuth }) => {
 		<AuthStack.Navigator headerMode={"none"} initialRouteName={routeName}>
 			<AuthStack.Screen name={"SignIn"} component={Login}/>
 			<AuthStack.Screen name={"SignUp"} component={Register}/>
+			<AuthStack.Screen name={"ForgotPassword"} component={ForgotPassword}/>
 			<AuthStack.Screen name={"Onboarding"}>
 				{(props) => <Onboarding height={200} width={200} styles={styles} onAuth={onAuth}/>}
 			</AuthStack.Screen>
@@ -66,6 +68,7 @@ const AuthStackScreen = ({ routeName, onAuth }) => {
 			</AuthStack.Screen>
 			<AuthStack.Screen name={"SignIn"} component={Login}/>
 			<AuthStack.Screen name={"SignUp"} component={Register}/>
+			<AuthStack.Screen name={"ForgotPassword"} component={ForgotPassword}/>
 		</AuthStack.Navigator>
 	);
 };
@@ -135,7 +138,8 @@ const AppNavigator = props => {
 								Alert.alert("No user exists with that email address");
 								return;
 							default:
-								console.error(error);
+								Alert.alert("Oops!", error.message)
+								console.log(error);
 						}
 					});
 			},

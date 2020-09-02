@@ -1,39 +1,78 @@
 import React, { Component } from "react";
-import { Dimensions, StyleSheet, TouchableOpacity } from "react-native";
+import { Dimensions, FlatList, View, StyleSheet, TouchableOpacity, Alert, Image } from "react-native";
 import { Button, Block, Text } from "galio-framework";
 import Theme from "../../constants/Theme";
 import { StatusBar } from "expo-status-bar";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import SvgCarIcon from "../../components/SvgCarIcon";
 import DashIcons from "../../components/DashIcons";
-
-const RideOptions = [
-	{
-		title: "Ride A",
-		passengers: 4,
-		arrivalTime: "10:00 - 10:07 arrival",
-		price: "5.00"
-	},
-	{
-		title: "Ride B",
-		passengers: 7,
-		arrivalTime: "10:00 - 10:07 arrival",
-		price: "7.50"
-	}
-]
+import rocket from '../../assets/animations/lottie-rocket.json'
 
 export default class MakePayment extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			findingDriver: false,
 			source: {
 				latitude: 0,
 				longitude: 0,
 				latitudeDelta: 0.005,
 				longitudeDelta: 0.005
-			}
+			},
+			selection: {
+				title: "",
+				passengers: "",
+				arrivalTime: "",
+				price: ""
+			},
+			rideOptions: [
+				{
+					title: "Ride A",
+					passengers: 4,
+					arrivalTime: "10:00 - 10:07 arrival",
+					price: "5.00",
+					isSelected: false
+				},
+				{
+					title: "Ride B",
+					passengers: 7,
+					arrivalTime: "10:00 - 10:07 arrival",
+					price: "7.50",
+					isSelected: false
+				},
+				{
+					title: "Ride C",
+					passengers: 6,
+					arrivalTime: "12:00 - 13:30 arrival",
+					price: "3.50",
+					isSelected: false
+				}
+			]
 		};
 	}
+
+	validateConfirmation = () => {
+		console.log(Object.values(this.state.selection));
+		if (Object.values(this.state.selection).some(x => x === "")) {
+			Alert.alert("No selection made!", "Please select your dash ride before continuing :)");
+		} else {
+			this.setState({ findingDriver: true });
+		}
+	};
+
+	toggleOption = (INDEX) => {
+		let updatedRideOptions = this.state.rideOptions.slice().map((item, index) => {
+			if (INDEX === index) {
+				item["isSelected"] = true;
+				let { isSelected, ...selection } = item;
+				this.setState({ selection });
+			} else {
+				item["isSelected"] = false;
+			}
+			return item;
+		});
+		this.setState({ rideOptions: updatedRideOptions }, () => console.log(this.state.rideOptions));
+	};
 
 	componentDidMount() {
 		let { lat, lng } = this.props.route.params.source.geometry.location;
@@ -48,8 +87,8 @@ export default class MakePayment extends Component {
 
 	render() {
 		return (
-			<Block style={styles.container}>
-				<StatusBar hidden/>
+			<View style={styles.container}>
+				<StatusBar hidden />
 				<MapView
 					provider={PROVIDER_GOOGLE}
 					showsCompass={true}
@@ -63,51 +102,86 @@ export default class MakePayment extends Component {
 					}}
 					region={this.state.source}
 				/>
-				<Block style={styles.menuContainer}>
-					<Text style={styles.header}>Time To Pick A Dash!</Text>
-					<Block style={styles.dashRideBox}>
-						<SvgCarIcon/>
-						<Block style={{ paddingRight: 25 }}>
-							<Text size={18} style={styles.optionHeader}>Ride A</Text>
-							<Text size={14} style={styles.subText}>10:00 - 10:07 arrival</Text>
-						</Block>
-						<Text style={styles.price}>£5.00</Text>
-					</Block>
-					<Block style={styles.dashRideBox}>
-						<SvgCarIcon/>
-						<Block style={{ paddingRight: 25 }}>
-							<Text size={18} style={styles.optionHeader}>Ride B</Text>
-							<Text size={14} style={styles.subText}>10:00 - 10:07 arrival</Text>
-						</Block>
-						<Text style={styles.price}>£7.50</Text>
-					</Block>
-				</Block>
-				<Block style={styles.paymentContainer}>
+				{this.state.findingDriver ? (
 					<Block style={{
-						flex: 0.4, flexDirection: "row", alignItems: "center"
+						flex: 0.55,
+						justifyContent: "center",
+						alignItems: "center"
 					}}>
-						<Block style={styles.card}>
-							<DashIcons name={"visa"} size={40}/>
-							<Text size={14} color={Theme.COLOURS.SUB_TEXT} bold>VISA ***** 4700</Text>
-							<TouchableOpacity
-								style={{
-									flex: 1,
-									alignItems: "center",
-								}}
-								onPress={() => console.log("Card drop down opened...")}
-							>
-								<DashIcons name={"dropdown-arrow"} size={14} color={"grey"}/>
-							</TouchableOpacity>
-						</Block>
-						<Button style={styles.recent}>
-							<DashIcons name={"clock"} size={22}/>
-						</Button>
+						<Image source={rocket} height={234} width={309} />
 					</Block>
-					<Button style={styles.confirmBtn} color={"#F2F2F2"}>
-						<Text style={styles.price}>Confirm your dash</Text>
-					</Button>
-				</Block>
-			</Block>
+				) : (
+					<View style={{
+						flex: 0.55,
+						alignItems: "center"
+					}}>
+						<Block style={styles.menuContainer}>
+							<Text style={styles.header}>Time To Pick A Dash!</Text>
+							<FlatList
+								contentContainerStyle={{
+									flexGrow: 1
+								}}
+								scrollEnabled={true}
+								keyExtractor={((item, index) => String(index))}
+								data={this.state.rideOptions}
+								renderItem={({ item, index }) => {
+									return (
+										<TouchableOpacity
+											activeOpacity={0.9}
+											style={[styles.dashRideBox, item.isSelected && styles.btnSelected]}
+											onPress={() => this.toggleOption(index)}
+										>
+											<SvgCarIcon
+												color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY} />
+											<Block style={{ paddingRight: 25 }}>
+												<Text size={18}
+												      color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}>{item.title}&nbsp;
+													<Text small
+													      style={item.isSelected && styles.textSelected}>{item.passengers}</Text>
+												</Text>
+												<Text size={14}
+												      style={item.isSelected ? styles.textSelected : styles.subText}>{item.arrivalTime}</Text>
+											</Block>
+											<Text
+												color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}
+												size={24}>£{item.price}</Text>
+										</TouchableOpacity>
+									);
+								}}
+							/>
+						</Block>
+						<Block style={styles.paymentContainer}>
+							<Block style={{
+								flex: 0.4, flexDirection: "row", alignItems: "center"
+							}}>
+								<Block style={styles.card}>
+									<DashIcons name={"visa"} size={40} />
+									<Text size={14} color={Theme.COLOURS.SUB_TEXT} bold>VISA ***** 4700</Text>
+									<TouchableOpacity
+										style={{
+											flex: 1,
+											alignItems: "center"
+										}}
+										onPress={() => console.log("Card drop down opened...")}
+									>
+										<DashIcons name={"dropdown-arrow"} size={14} color={"grey"} />
+									</TouchableOpacity>
+								</Block>
+								<Button style={styles.recent}>
+									<DashIcons name={"clock"} size={22} />
+								</Button>
+							</Block>
+							<Button
+								style={styles.confirmBtn}
+								color={"#F2F2F2"}
+								onPress={() => this.validateConfirmation()}
+							>
+								<Text size={24} color={Theme.COLOURS.SECONDARY}>Confirm your dash</Text>
+							</Button>
+						</Block>
+					</View>
+				)}
+			</View>
 		);
 	}
 }
@@ -116,31 +190,34 @@ const { height: HEIGHT } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
 	container: {
-		...StyleSheet.absoluteFillObject,
 		flex: 1,
-		justifyContent: "space-between",
+		justifyContent: "center",
 		alignItems: "center",
 		fontFamily: "Roboto",
 		backgroundColor: Theme.COLOURS.WHITE
 	},
 	menuContainer: {
-		flex: 0.3,
+		flex: 0.55,
 		justifyContent: "space-between",
 		alignItems: "center",
 		width: "100%",
-		paddingHorizontal: 10,
-		elevation: 10
+		paddingRight: 10,
+		elevation: 1
 	},
 	dashRideBox: {
-		flex: 0.45,
+		flexGrow: 0.475,
 		backgroundColor: Theme.COLOURS.WHITE,
-		width: "100%",
-		paddingHorizontal: 15,
+		width: "92.5%",
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
+		alignSelf: "center",
 		borderRadius: 10,
-		elevation: 5
+		elevation: 3,
+		paddingVertical: 20,
+		paddingHorizontal: 10,
+		shadowRadius: 10,
+		marginBottom: 20
 	},
 	map: {
 		flex: 0.45,
@@ -148,7 +225,7 @@ const styles = StyleSheet.create({
 	},
 	paymentContainer: {
 		marginTop: 10,
-		flex: 0.25,
+		flex: 0.45,
 		paddingHorizontal: 10,
 		justifyContent: "center",
 		alignItems: "center",
@@ -156,18 +233,14 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		borderColor: "rgba(0,0,0,0.1)"
 	},
-	subText: {
-		color: Theme.COLOURS.SUB_TEXT
-	},
 	header: {
 		fontWeight: "bold",
 		fontSize: 18,
 		color: Theme.COLOURS.SUB_HEADER,
-		paddingTop: 15
+		paddingVertical: 10
 	},
-	optionHeader: {
-		fontSize: 18,
-		color: Theme.COLOURS.SECONDARY
+	subText: {
+		color: Theme.COLOURS.SUB_TEXT
 	},
 	card: {
 		flex: 0.7,
@@ -183,11 +256,8 @@ const styles = StyleSheet.create({
 	recent: {
 		flex: 0.3,
 		borderRadius: 30,
-		backgroundColor: Theme.COLOURS.WHITE
-	},
-	price: {
-		fontSize: 24,
-		color: Theme.COLOURS.SECONDARY
+		backgroundColor: Theme.COLOURS.WHITE,
+		elevation: 5
 	},
 	confirmBtn: {
 		flex: 0.6,
@@ -196,7 +266,9 @@ const styles = StyleSheet.create({
 		elevation: 3
 	},
 	btnSelected: {
-		backgroundColor: Theme.COLOURS.PRIMARY,
+		backgroundColor: Theme.COLOURS.BUTTON
+	},
+	textSelected: {
 		color: Theme.COLOURS.WHITE
 	}
 });

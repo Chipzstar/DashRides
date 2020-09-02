@@ -76,6 +76,6 @@ export default (styles = StyleSheet.create({
 		fontSize: 20,
 	},
 	link: {
-		paddingTop: 40
+		paddingTop: 50,
 	}
 }));
