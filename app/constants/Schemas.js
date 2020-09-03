@@ -24,3 +24,15 @@ export const tripSchema = {
 	tripFare: Number(0.00),
 	applicationFee: Number(0.00)
 }
+
+export const requestSchema = {
+	riderKey: "",
+	source: [0.0, 0.0],
+	dest: [0.0, 0.0],
+	driver: "",
+	experience: "",
+	environment: "",
+	price: "",
+	arrivalTime: "",
+	passengers: 0,
+}

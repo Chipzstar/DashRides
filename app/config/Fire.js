@@ -1,6 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/storage";
 import "firebase/database";
+import { requestSchema } from "../constants/Schemas";
 
 export const config = {
 	apiKey: "AIzaSyB5wg9Gu6z7LDwvDB9BfV03VycPk-aRFZE",
@@ -61,6 +62,33 @@ export const updateUserCoordinates = async (user, coords) => {
 			}
 		} catch (err) {
 			reject(err);
+		}
+	});
+};
+
+export const createDashRequest = async (userId, { dest, source, environment, driver, experience, price, arrivalTime, passengers }) => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			if (userId) {
+				let request = await firebase.database()
+					.ref()
+					.child("requests")
+					.push({
+						...requestSchema,
+						riderKey: userId,
+						source,
+						dest,
+						driver,
+						environment,
+						experience,
+						price,
+						arrivalTime,
+						passengers
+					});
+				resolve(request);
+			}
+		} catch (e) {
+			reject(e);
 		}
 	});
 };

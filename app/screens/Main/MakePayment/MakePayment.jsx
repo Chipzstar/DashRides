@@ -1,14 +1,20 @@
 import React, { Component } from "react";
-import { Dimensions, FlatList, View, StyleSheet, TouchableOpacity, Alert, Image } from "react-native";
-import { Button, Block, Text } from "galio-framework";
-import Theme from "../../constants/Theme";
+import { Alert, FlatList, TouchableOpacity, View } from "react-native";
+import { Block, Button, Text } from "galio-framework";
+import Theme from "../../../constants/Theme";
 import { StatusBar } from "expo-status-bar";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-import SvgCarIcon from "../../components/SvgCarIcon";
-import DashIcons from "../../components/DashIcons";
-import rocket from '../../assets/animations/lottie-rocket.json'
+import NumberFormat from "react-number-format";
+import SvgCarIcon from "../../../components/SvgCarIcon";
+import DashIcons from "../../../components/DashIcons";
+import LottieView from "lottie-react-native";
+import styles from "./styles";
+import { createDashRequest } from "../../../config/Fire";
+import AuthContext from "../../../navigation/context";
 
 export default class MakePayment extends Component {
+	static contextType = AuthContext;
+
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -23,39 +29,55 @@ export default class MakePayment extends Component {
 				title: "",
 				passengers: "",
 				arrivalTime: "",
-				price: ""
+				price: 0.0
 			},
 			rideOptions: [
 				{
 					title: "Ride A",
 					passengers: 4,
 					arrivalTime: "10:00 - 10:07 arrival",
-					price: "5.00",
+					price: 5.00,
 					isSelected: false
 				},
 				{
 					title: "Ride B",
 					passengers: 7,
 					arrivalTime: "10:00 - 10:07 arrival",
-					price: "7.50",
+					price: 7.50,
 					isSelected: false
 				},
 				{
 					title: "Ride C",
 					passengers: 6,
 					arrivalTime: "12:00 - 13:30 arrival",
-					price: "3.50",
+					price: 3.50,
 					isSelected: false
 				}
 			]
 		};
+		this.animation = React.createRef();
+	}
+
+	componentDidMount() {
+		console.log("Route Params", this.props.route.params);
+		let { lat, lng } = this.props.route.params.source.geometry.location;
+		this.setState({
+			source: {
+				...this.state.source,
+				latitude: lat,
+				longitude: lng
+			}
+		});
 	}
 
 	validateConfirmation = () => {
+		const { user } = this.context;
 		console.log(Object.values(this.state.selection));
 		if (Object.values(this.state.selection).some(x => x === "")) {
 			Alert.alert("No selection made!", "Please select your dash ride before continuing :)");
 		} else {
+			createDashRequest(user().uid, { ...this.props.route.params, ...this.state.selection })
+				.then(res => console.log(res));
 			this.setState({ findingDriver: true });
 		}
 	};
@@ -73,17 +95,6 @@ export default class MakePayment extends Component {
 		});
 		this.setState({ rideOptions: updatedRideOptions }, () => console.log(this.state.rideOptions));
 	};
-
-	componentDidMount() {
-		let { lat, lng } = this.props.route.params.source.geometry.location;
-		this.setState({
-			source: {
-				...this.state.source,
-				latitude: lat,
-				longitude: lng
-			}
-		}, () => console.log(this.state.source));
-	}
 
 	render() {
 		return (
@@ -108,19 +119,22 @@ export default class MakePayment extends Component {
 						justifyContent: "center",
 						alignItems: "center"
 					}}>
-						<Image source={rocket} height={234} width={309} />
+						<LottieView
+							ref={animation => this.animation = animation}
+							source={require("../../../assets/animations/13477-sample.json")}
+							autoPlay
+							loop
+							style={{ width: 300, height: 300 }}
+							enableMergePathsAndroidForKitKatAndAbove
+						/>
+						<Text style={styles.successText} size={18}>{"hang on. \nwe're finding you a driver"}</Text>
 					</Block>
 				) : (
-					<View style={{
-						flex: 0.55,
-						alignItems: "center"
-					}}>
+					<View style={{ flex: 0.55, alignItems: "center" }}>
 						<Block style={styles.menuContainer}>
 							<Text style={styles.header}>Time To Pick A Dash!</Text>
 							<FlatList
-								contentContainerStyle={{
-									flexGrow: 1
-								}}
+								contentContainerStyle={{ flexGrow: 1 }}
 								scrollEnabled={true}
 								keyExtractor={((item, index) => String(index))}
 								data={this.state.rideOptions}
@@ -142,9 +156,16 @@ export default class MakePayment extends Component {
 												<Text size={14}
 												      style={item.isSelected ? styles.textSelected : styles.subText}>{item.arrivalTime}</Text>
 											</Block>
-											<Text
-												color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}
-												size={24}>£{item.price}</Text>
+											<NumberFormat
+												displayType="text"
+												value={item.price}
+												prefix="£"
+												decimalScale="2"
+												fixedDecimalScale
+												renderText={(text) => <Text
+													color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}
+													size={24}>{text}</Text>}
+											/>
 										</TouchableOpacity>
 									);
 								}}
@@ -174,7 +195,7 @@ export default class MakePayment extends Component {
 							<Button
 								style={styles.confirmBtn}
 								color={"#F2F2F2"}
-								onPress={() => this.validateConfirmation()}
+								onPress={this.validateConfirmation}
 							>
 								<Text size={24} color={Theme.COLOURS.SECONDARY}>Confirm your dash</Text>
 							</Button>
@@ -185,90 +206,3 @@ export default class MakePayment extends Component {
 		);
 	}
 }
-const { width: WIDTH } = Dimensions.get("window"); //Max Width of phone screen
-const { height: HEIGHT } = Dimensions.get("window");
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		fontFamily: "Roboto",
-		backgroundColor: Theme.COLOURS.WHITE
-	},
-	menuContainer: {
-		flex: 0.55,
-		justifyContent: "space-between",
-		alignItems: "center",
-		width: "100%",
-		paddingRight: 10,
-		elevation: 1
-	},
-	dashRideBox: {
-		flexGrow: 0.475,
-		backgroundColor: Theme.COLOURS.WHITE,
-		width: "92.5%",
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
-		alignSelf: "center",
-		borderRadius: 10,
-		elevation: 3,
-		paddingVertical: 20,
-		paddingHorizontal: 10,
-		shadowRadius: 10,
-		marginBottom: 20
-	},
-	map: {
-		flex: 0.45,
-		width: WIDTH
-	},
-	paymentContainer: {
-		marginTop: 10,
-		flex: 0.45,
-		paddingHorizontal: 10,
-		justifyContent: "center",
-		alignItems: "center",
-		borderStyle: "solid",
-		borderWidth: 2,
-		borderColor: "rgba(0,0,0,0.1)"
-	},
-	header: {
-		fontWeight: "bold",
-		fontSize: 18,
-		color: Theme.COLOURS.SUB_HEADER,
-		paddingVertical: 10
-	},
-	subText: {
-		color: Theme.COLOURS.SUB_TEXT
-	},
-	card: {
-		flex: 0.7,
-		height: 45,
-		flexDirection: "row",
-		justifyContent: "flex-start",
-		alignItems: "center",
-		borderRadius: 30,
-		backgroundColor: Theme.COLOURS.WHITE,
-		elevation: 5,
-		paddingLeft: 10
-	},
-	recent: {
-		flex: 0.3,
-		borderRadius: 30,
-		backgroundColor: Theme.COLOURS.WHITE,
-		elevation: 5
-	},
-	confirmBtn: {
-		flex: 0.6,
-		width: 343,
-		borderRadius: 30,
-		elevation: 3
-	},
-	btnSelected: {
-		backgroundColor: Theme.COLOURS.BUTTON
-	},
-	textSelected: {
-		color: Theme.COLOURS.WHITE
-	}
-});

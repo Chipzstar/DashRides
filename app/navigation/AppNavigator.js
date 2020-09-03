@@ -27,7 +27,7 @@ import { clearWelcomeStatus } from "../store/AsyncStorage";
 import getTabBarVisibility from "../helpers/handleTabBarVisibility";
 //styles
 import styles from "../startup/styles";
-import MakePayment from "../screens/Main/MakePayment";
+import MakePayment from "../screens/Main/MakePayment/MakePayment";
 
 const RootStack = createStackNavigator();
 const AuthStack = createStackNavigator();
