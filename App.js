@@ -4,6 +4,7 @@ import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./app/navigation/AppNavigator";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf"),
@@ -47,14 +48,17 @@ export default class App extends React.Component {
 			return null;
 		}
 		return (
-			<NavigationContainer>
-				<AppNavigator/>
-			</NavigationContainer>
-		)
+			<SafeAreaProvider>
+				<NavigationContainer>
+					<AppNavigator />
+				</NavigationContainer>
+			</SafeAreaProvider>
+		);
 	}
 }
 
-async function performAPICalls() {}
+async function performAPICalls() {
+}
 
 async function downloadAssets() {
 	await Font.loadAsync(customFonts);

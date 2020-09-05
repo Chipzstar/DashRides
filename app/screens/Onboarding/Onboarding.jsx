@@ -1,5 +1,5 @@
-import React, {useCallback} from "react";
-import { BackHandler, Image, TouchableOpacity } from "react-native";
+import React from "react";
+import { Image, TouchableOpacity } from "react-native";
 import PropTypes from "prop-types";
 import { Block, Text } from "galio-framework";
 import Theme from "../../constants/Theme";

@@ -26,12 +26,16 @@ export const tripSchema = {
 }
 
 export const requestSchema = {
+	isAccepted: false,
 	riderKey: "",
-	source: [0.0, 0.0],
-	dest: [0.0, 0.0],
-	driver: "",
-	experience: "",
-	environment: "",
+	driverKey: "",
+	source: {},
+	dest: {},
+	driverType: {
+		gender: "",
+		experience: "",
+	},
+	environmentFee: "",
 	price: "",
 	arrivalTime: "",
 	passengers: 0,

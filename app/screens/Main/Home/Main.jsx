@@ -28,8 +28,7 @@ export default class Main extends Component {
 
 	async componentDidMount() {
 		const { user } = this.context;
-		console.log(user());
-		if (user()) this.setState({ displayName: user().displayName });
+		if(user.displayName !== null) this.setState({ displayName: user.displayName });
 		await UserPermissions.getLocationPermission();
 		let location = await Location.getCurrentPositionAsync({
 			accuracy: Location.Accuracy.BestForNavigation,

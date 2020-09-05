@@ -5,12 +5,17 @@ import Theme from "../../../constants/Theme";
 import { StatusBar } from "expo-status-bar";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import NumberFormat from "react-number-format";
+import LottieView from "lottie-react-native";
+import { createDashRequest } from "../../../config/Fire";
+import firebase from "firebase/app";
+import "firebase/database";
+//context
+import AuthContext from "../../../navigation/context";
+//icons
 import SvgCarIcon from "../../../components/SvgCarIcon";
 import DashIcons from "../../../components/DashIcons";
-import LottieView from "lottie-react-native";
+//styles
 import styles from "./styles";
-import { createDashRequest } from "../../../config/Fire";
-import AuthContext from "../../../navigation/context";
 
 export default class MakePayment extends Component {
 	static contextType = AuthContext;
@@ -59,7 +64,6 @@ export default class MakePayment extends Component {
 	}
 
 	componentDidMount() {
-		console.log("Route Params", this.props.route.params);
 		let { lat, lng } = this.props.route.params.source.geometry.location;
 		this.setState({
 			source: {
@@ -72,13 +76,27 @@ export default class MakePayment extends Component {
 
 	validateConfirmation = () => {
 		const { user } = this.context;
-		console.log(Object.values(this.state.selection));
+		console.log("Selection", Object.values(this.state.selection));
 		if (Object.values(this.state.selection).some(x => x === "")) {
 			Alert.alert("No selection made!", "Please select your dash ride before continuing :)");
 		} else {
 			createDashRequest(user().uid, { ...this.props.route.params, ...this.state.selection })
-				.then(res => console.log(res));
-			this.setState({ findingDriver: true });
+				.then(res => {
+					console.log(res);
+					let reqURL = String(res), reqChanges = [];
+					let reqId = reqURL.substr(reqURL.lastIndexOf("/") + 1);
+					const dbRef = firebase.database().ref(`requests/${reqId}`)
+					setTimeout(() => dbRef
+						.on("child_changed", (snap) => {
+							reqChanges.push(snap.val())
+							if(reqChanges.length === 2){
+								dbRef.off("child_changed");
+								this.props.navigation.navigate("NewRide")
+							}
+						}, (err => console.error(err))), 1000);
+					this.setState({ findingDriver: true });
+				})
+				.catch(err => Alert.alert("An error occurred", err.message));
 		}
 	};
 
@@ -158,7 +176,7 @@ export default class MakePayment extends Component {
 											</Block>
 											<NumberFormat
 												displayType="text"
-												value={item.price}
+												value={Number(item.price)}
 												prefix="£"
 												decimalScale="2"
 												fixedDecimalScale

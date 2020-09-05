@@ -78,9 +78,11 @@ export const createDashRequest = async (userId, { dest, source, environment, dri
 						riderKey: userId,
 						source,
 						dest,
-						driver,
-						environment,
-						experience,
+						driverType: {
+							gender: driver,
+							experience
+						},
+						environmentFee: environment,
 						price,
 						arrivalTime,
 						passengers

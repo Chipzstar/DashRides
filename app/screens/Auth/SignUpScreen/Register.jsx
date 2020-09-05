@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import AuthContext from "../../../navigation/context";
-import { Keyboard, SafeAreaView, ScrollView, TouchableWithoutFeedback } from "react-native";
+import { Keyboard, SafeAreaView, ScrollView, TouchableWithoutFeedback, NativeModules } from "react-native";
 import UserPermissions from "../../../permissions/UserPermissions";
 import * as ImagePicker from "expo-image-picker";
 import SignUpSlide from "../../../components/SignUpSlide";
 import { width } from "../styles";
 import { getErrors, validateSignUp } from "../validation";
+import { StatusBar } from "expo-status-bar";
+import Theme from "../../../constants/Theme";
 
 const slides = [
 	{
@@ -162,7 +164,8 @@ export default class Register extends Component {
 		};
 		return (
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<SafeAreaView style={{ flex: 1 }}>
+				<SafeAreaView style={{ flex: 1, backgroundColor: Theme.COLOURS.SIGN_UP}}>
+					<StatusBar hidden/>
 					<ScrollView
 						style={{ flex: 1 }}
 						horizontal={true}

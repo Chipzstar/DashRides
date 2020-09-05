@@ -1,13 +1,13 @@
 import React from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, View } from "react-native";
 import AppIntroSlider from "react-native-app-intro-slider";
 import dash_rides from "../assets/images/slider-images/dash-rides.png";
 import money_bag from "../assets/images/slider-images/money-bag.png";
 import handshake from "../assets/images/slider-images/handshake.png";
-import Theme from "../constants/Theme";
 import { Text } from "galio-framework";
 import Onboarding from "../screens/Onboarding/Onboarding";
 import { StatusBar } from "expo-status-bar";
+import styles from "./styles";
 
 const slides = [
 	{

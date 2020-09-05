@@ -6,6 +6,7 @@ import AuthContext from "../../../navigation/context";
 import { Formik } from "formik";
 import { signInSchema } from "../validation";
 import styles from "../styles";
+import { StatusBar } from "expo-status-bar";
 
 export default class Login extends Component {
 	static contextType = AuthContext;
@@ -24,6 +25,7 @@ export default class Login extends Component {
 		return (
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<Block flex style={styles.signInContainer}>
+					<StatusBar hidden/>
 					<Block>
 						<Text h1 style={styles.signInHeader}>Log in</Text>
 					</Block>
