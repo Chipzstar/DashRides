@@ -60,7 +60,9 @@
     "arrowParens": "avoid",
     "tabWidth": 4,
     "useTabs": true,
-    "jsxSingleQuote": true
+    "jsxSingleQuote": true,
+    "singleQuote": true,
+    "printWidth": 120
   },
   "jest": {
     "preset": "react-native"

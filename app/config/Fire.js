@@ -1,4 +1,5 @@
 import firebase from "firebase/app";
+import "firebase/auth";
 import "firebase/storage";
 import "firebase/database";
 import { requestSchema } from "../constants/Schemas";
@@ -11,21 +12,17 @@ export const config = {
 	storageBucket: "ridesdash-13b8a.appspot.com",
 	messagingSenderId: "222913989504",
 	appId: "1:222913989504:web:f2d974e73c06774d498f65",
-	measurementId: "G-SWF94ECC0M"
+	measurementId: "G-SWF94ECC0M",
 };
 
 export const uploadPhotoAsync = async (uri, filepath) => {
 	return new Promise(async (resolve, reject) => {
 		const res = await fetch(uri);
 		const file = await res.blob();
-		let upload = firebase
-			.storage()
-			.ref(filepath)
-			.put(file);
+		let upload = firebase.storage().ref(filepath).put(file);
 		upload.on(
 			"state_changed",
-			snapshot => {
-			},
+			snapshot => {},
 			err => {
 				reject(err);
 			},
@@ -41,21 +38,28 @@ export const updateUserCoordinates = async (user, coords) => {
 	return new Promise(async (resolve, reject) => {
 		try {
 			if (user) {
-				let dataSnapshot = (await firebase.database()
-					.ref(`users/${user.uid}/coordinate`)
-					.once("value")).val();
+				let dataSnapshot = (
+					await firebase
+						.database()
+						.ref(`users/${user.uid}/coordinate`)
+						.once("value")
+				).val();
 				console.log(dataSnapshot);
-				if (dataSnapshot[0] === coords.latitude && dataSnapshot[1] === coords.longitude)
+				if (
+					dataSnapshot[0] === coords.latitude &&
+					dataSnapshot[1] === coords.longitude
+				)
 					resolve("Coords have not changed");
 				else {
-					await firebase.database()
+					await firebase
+						.database()
 						.ref()
 						.child("users")
 						.child(user.uid)
 						.child("coordinate")
 						.update({
 							0: coords.latitude,
-							1: coords.longitude
+							1: coords.longitude,
 						});
 					resolve("New coordinates have been set!");
 				}
@@ -66,11 +70,24 @@ export const updateUserCoordinates = async (user, coords) => {
 	});
 };
 
-export const createDashRequest = async (userId, { dest, source, environment, driver, experience, price, arrivalTime, passengers }) => {
+export const createDashRequest = async (
+	userId,
+	{
+		dest,
+		source,
+		environment,
+		driver,
+		experience,
+		price,
+		arrivalTime,
+		passengers,
+	}
+) => {
 	return new Promise(async (resolve, reject) => {
 		try {
 			if (userId) {
-				let request = await firebase.database()
+				let request = await firebase
+					.database()
 					.ref()
 					.child("requests")
 					.push({
@@ -80,17 +97,34 @@ export const createDashRequest = async (userId, { dest, source, environment, dri
 						dest,
 						driverType: {
 							gender: driver,
-							experience
+							experience,
 						},
 						environmentFee: environment,
 						price,
 						arrivalTime,
-						passengers
+						passengers,
 					});
 				resolve(request);
 			}
 		} catch (e) {
 			reject(e);
+		}
+	});
+};
+
+export const getDriverInfo = async driverId => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			let name = await firebase.database()
+				.ref()
+				.child('drivers')
+				.child(driverId)
+				.child("firstname")
+				.once("value")
+			resolve(name.val());
+		} catch (err) {
+			console.log(err);
+			reject(err)
 		}
 	});
 };

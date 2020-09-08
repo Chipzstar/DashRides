@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import { Alert, FlatList, TouchableOpacity, View } from "react-native";
-import { Block, Button, Text } from "galio-framework";
-import Theme from "../../../constants/Theme";
-import { StatusBar } from "expo-status-bar";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
-import NumberFormat from "react-number-format";
-import LottieView from "lottie-react-native";
-import { createDashRequest } from "../../../config/Fire";
-import firebase from "firebase/app";
-import "firebase/database";
+import React, { Component } from 'react';
+import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
+import { Block, Button, Text } from 'galio-framework';
+import Theme from '../../../constants/Theme';
+import { StatusBar } from 'expo-status-bar';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import NumberFormat from 'react-number-format';
+import LottieView from 'lottie-react-native';
+import { createDashRequest, getDriverInfo } from '../../../config/Fire';
+import firebase from 'firebase/app';
+import 'firebase/database';
 //context
-import AuthContext from "../../../navigation/context";
+import AuthContext from '../../../navigation/context';
 //icons
-import SvgCarIcon from "../../../components/SvgCarIcon";
-import DashIcons from "../../../components/DashIcons";
+import SvgCarIcon from '../../../components/SvgCarIcon';
+import DashIcons from '../../../components/DashIcons';
 //styles
-import styles from "./styles";
+import styles from './styles';
 
 export default class MakePayment extends Component {
 	static contextType = AuthContext;
@@ -28,37 +28,37 @@ export default class MakePayment extends Component {
 				latitude: 0,
 				longitude: 0,
 				latitudeDelta: 0.005,
-				longitudeDelta: 0.005
+				longitudeDelta: 0.005,
 			},
 			selection: {
-				title: "",
-				passengers: "",
-				arrivalTime: "",
-				price: 0.0
+				title: '',
+				passengers: '',
+				arrivalTime: '',
+				price: 0.0,
 			},
 			rideOptions: [
 				{
-					title: "Ride A",
+					title: 'Ride A',
 					passengers: 4,
-					arrivalTime: "10:00 - 10:07 arrival",
-					price: 5.00,
-					isSelected: false
+					arrivalTime: '10:00 - 10:07 arrival',
+					price: 5.0,
+					isSelected: false,
 				},
 				{
-					title: "Ride B",
+					title: 'Ride B',
 					passengers: 7,
-					arrivalTime: "10:00 - 10:07 arrival",
-					price: 7.50,
-					isSelected: false
+					arrivalTime: '10:00 - 10:07 arrival',
+					price: 7.5,
+					isSelected: false,
 				},
 				{
-					title: "Ride C",
+					title: 'Ride C',
 					passengers: 6,
-					arrivalTime: "12:00 - 13:30 arrival",
-					price: 3.50,
-					isSelected: false
-				}
-			]
+					arrivalTime: '12:00 - 13:30 arrival',
+					price: 3.5,
+					isSelected: false,
+				},
+			],
 		};
 		this.animation = React.createRef();
 	}
@@ -69,49 +69,76 @@ export default class MakePayment extends Component {
 			source: {
 				...this.state.source,
 				latitude: lat,
-				longitude: lng
-			}
+				longitude: lng,
+			},
 		});
 	}
 
-	validateConfirmation = () => {
+	validateConfirmation = async () => {
 		const { user } = this.context;
-		console.log("Selection", Object.values(this.state.selection));
-		if (Object.values(this.state.selection).some(x => x === "")) {
-			Alert.alert("No selection made!", "Please select your dash ride before continuing :)");
+		console.log('UserInfo', user);
+		console.log('Selection', Object.values(this.state.selection));
+		if (Object.values(this.state.selection).some(x => x === '')) {
+			Alert.alert(
+				'No selection made!',
+				'Please select your dash ride before continuing :)'
+			);
 		} else {
-			createDashRequest(user().uid, { ...this.props.route.params, ...this.state.selection })
-				.then(res => {
-					console.log(res);
-					let reqURL = String(res), reqChanges = [];
-					let reqId = reqURL.substr(reqURL.lastIndexOf("/") + 1);
-					const dbRef = firebase.database().ref(`requests/${reqId}`)
-					setTimeout(() => dbRef
-						.on("child_changed", (snap) => {
-							reqChanges.push(snap.val())
-							if(reqChanges.length === 2){
-								dbRef.off("child_changed");
-								this.props.navigation.navigate("NewRide")
-							}
-						}, (err => console.error(err))), 1000);
-					this.setState({ findingDriver: true });
-				})
-				.catch(err => Alert.alert("An error occurred", err.message));
-		}
-	};
-
-	toggleOption = (INDEX) => {
-		let updatedRideOptions = this.state.rideOptions.slice().map((item, index) => {
-			if (INDEX === index) {
-				item["isSelected"] = true;
-				let { isSelected, ...selection } = item;
-				this.setState({ selection });
-			} else {
-				item["isSelected"] = false;
+			try {
+				let result = await createDashRequest(user.uid, {
+					...this.props.route.params,
+					...this.state.selection,
+				});
+				console.log(result);
+				let reqURL = String(result),
+					reqChanges = [];
+				let reqId = reqURL.substr(reqURL.lastIndexOf('/') + 1);
+				const dbRef = firebase.database().ref(`requests`);
+				setTimeout(
+					() =>
+						dbRef.child(reqId).on(
+							'child_changed',
+							async snap => {
+								//driverKey and isAccepted keys will arrive one after the other
+								//both need to be stored in the same place - array
+								reqChanges.push(snap.val());
+								//check if values for driverKey and isAccepted have changed
+								if (reqChanges.length === 2) {
+									let driverName = await getDriverInfo(reqChanges[0]);
+									await dbRef.child(reqId).remove();
+									dbRef.off('child_changed');
+									this.props.navigation.navigate('NewRide', {
+										driverName
+									});
+								}
+							},
+							err => console.error(err)
+						),
+					500
+				);
+				this.setState({ findingDriver: true });
+			} catch (err) {
+				Alert.alert('An error occurred', err.message);
 			}
-			return item;
-		});
-		this.setState({ rideOptions: updatedRideOptions }, () => console.log(this.state.rideOptions));
+		}
+	}
+
+	toggleOption = INDEX => {
+		let updatedRideOptions = this.state.rideOptions
+			.slice()
+			.map((item, index) => {
+				if (INDEX === index) {
+					item['isSelected'] = true;
+					let { isSelected, ...selection } = item;
+					this.setState({ selection });
+				} else {
+					item['isSelected'] = false;
+				}
+				return item;
+			});
+		this.setState({ rideOptions: updatedRideOptions }, () =>
+			console.log(this.state.rideOptions)
+		);
 	};
 
 	render() {
@@ -127,62 +154,115 @@ export default class MakePayment extends Component {
 						latitude: 37.78825,
 						longitude: -122.4324,
 						latitudeDelta: 0.0922,
-						longitudeDelta: 0.0421
+						longitudeDelta: 0.0421,
 					}}
 					region={this.state.source}
 				/>
 				{this.state.findingDriver ? (
-					<Block style={{
-						flex: 0.55,
-						justifyContent: "center",
-						alignItems: "center"
-					}}>
+					<Block
+						style={{
+							flex: 0.55,
+							justifyContent: 'center',
+							alignItems: 'center',
+						}}
+					>
 						<LottieView
-							ref={animation => this.animation = animation}
-							source={require("../../../assets/animations/13477-sample.json")}
+							ref={animation => (this.animation = animation)}
+							source={require('../../../assets/animations/13477-sample.json')}
 							autoPlay
 							loop
 							style={{ width: 300, height: 300 }}
 							enableMergePathsAndroidForKitKatAndAbove
 						/>
-						<Text style={styles.successText} size={18}>{"hang on. \nwe're finding you a driver"}</Text>
+						<Text style={styles.successText} size={18}>
+							{"hang on. \nwe're finding you a driver"}
+						</Text>
 					</Block>
 				) : (
-					<View style={{ flex: 0.55, alignItems: "center" }}>
+					<View style={{ flex: 0.55, alignItems: 'center' }}>
 						<Block style={styles.menuContainer}>
-							<Text style={styles.header}>Time To Pick A Dash!</Text>
+							<Text style={styles.header}>
+								Time To Pick A Dash!
+							</Text>
 							<FlatList
 								contentContainerStyle={{ flexGrow: 1 }}
 								scrollEnabled={true}
-								keyExtractor={((item, index) => String(index))}
+								keyExtractor={(item, index) => String(index)}
 								data={this.state.rideOptions}
 								renderItem={({ item, index }) => {
 									return (
 										<TouchableOpacity
 											activeOpacity={0.9}
-											style={[styles.dashRideBox, item.isSelected && styles.btnSelected]}
-											onPress={() => this.toggleOption(index)}
+											style={[
+												styles.dashRideBox,
+												item.isSelected &&
+													styles.btnSelected,
+											]}
+											onPress={() =>
+												this.toggleOption(index)
+											}
 										>
 											<SvgCarIcon
-												color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY} />
+												color={
+													item.isSelected
+														? Theme.COLOURS.WHITE
+														: Theme.COLOURS
+																.SECONDARY
+												}
+											/>
 											<Block style={{ paddingRight: 25 }}>
-												<Text size={18}
-												      color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}>{item.title}&nbsp;
-													<Text small
-													      style={item.isSelected && styles.textSelected}>{item.passengers}</Text>
+												<Text
+													size={18}
+													color={
+														item.isSelected
+															? Theme.COLOURS
+																	.WHITE
+															: Theme.COLOURS
+																	.SECONDARY
+													}
+												>
+													{item.title}&nbsp;
+													<Text
+														small
+														style={
+															item.isSelected &&
+															styles.textSelected
+														}
+													>
+														{item.passengers}
+													</Text>
 												</Text>
-												<Text size={14}
-												      style={item.isSelected ? styles.textSelected : styles.subText}>{item.arrivalTime}</Text>
+												<Text
+													size={14}
+													style={
+														item.isSelected
+															? styles.textSelected
+															: styles.subText
+													}
+												>
+													{item.arrivalTime}
+												</Text>
 											</Block>
 											<NumberFormat
-												displayType="text"
+												displayType='text'
 												value={Number(item.price)}
-												prefix="£"
-												decimalScale="2"
+												prefix='£'
+												decimalScale={2}
 												fixedDecimalScale
-												renderText={(text) => <Text
-													color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}
-													size={24}>{text}</Text>}
+												renderText={text => (
+													<Text
+														color={
+															item.isSelected
+																? Theme.COLOURS
+																		.WHITE
+																: Theme.COLOURS
+																		.SECONDARY
+														}
+														size={24}
+													>
+														{text}
+													</Text>
+												)}
 											/>
 										</TouchableOpacity>
 									);
@@ -190,32 +270,52 @@ export default class MakePayment extends Component {
 							/>
 						</Block>
 						<Block style={styles.paymentContainer}>
-							<Block style={{
-								flex: 0.4, flexDirection: "row", alignItems: "center"
-							}}>
+							<Block
+								style={{
+									flex: 0.4,
+									flexDirection: 'row',
+									alignItems: 'center',
+								}}
+							>
 								<Block style={styles.card}>
-									<DashIcons name={"visa"} size={40} />
-									<Text size={14} color={Theme.COLOURS.SUB_TEXT} bold>VISA ***** 4700</Text>
+									<DashIcons name={'visa'} size={40} />
+									<Text
+										size={14}
+										color={Theme.COLOURS.SUB_TEXT}
+										bold
+									>
+										VISA ***** 4700
+									</Text>
 									<TouchableOpacity
 										style={{
 											flex: 1,
-											alignItems: "center"
+											alignItems: 'center',
 										}}
-										onPress={() => console.log("Card drop down opened...")}
+										onPress={() =>
+											console.log(
+												'Card drop down opened...'
+											)
+										}
 									>
-										<DashIcons name={"dropdown-arrow"} size={14} color={"grey"} />
+										<DashIcons
+											name={'dropdown-arrow'}
+											size={14}
+											color={'grey'}
+										/>
 									</TouchableOpacity>
 								</Block>
 								<Button style={styles.recent}>
-									<DashIcons name={"clock"} size={22} />
+									<DashIcons name={'clock'} size={22} />
 								</Button>
 							</Block>
 							<Button
 								style={styles.confirmBtn}
-								color={"#F2F2F2"}
+								color={'#F2F2F2'}
 								onPress={this.validateConfirmation}
 							>
-								<Text size={24} color={Theme.COLOURS.SECONDARY}>Confirm your dash</Text>
+								<Text size={24} color={Theme.COLOURS.SECONDARY}>
+									Confirm your dash
+								</Text>
 							</Button>
 						</Block>
 					</View>

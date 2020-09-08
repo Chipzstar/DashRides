@@ -6,7 +6,9 @@
     "slug": "DashRides",
     "version": "1.0.0",
     "assetBundlePatterns": [
-      "**/*"
+      "./app/assets/images/*",
+      "./app/assets/icons/*",
+      "./app/assets/splash/*"
     ],
     "icon": "./app/assets/splash/logo.png",
     "splash": {

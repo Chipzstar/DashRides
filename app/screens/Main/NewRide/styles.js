@@ -1,52 +1,92 @@
-import {StyleSheet, Dimensions} from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 import Theme from "../../../constants/Theme";
 
-export const {width: WIDTH} = Dimensions.get("window"); //Max Width of phone screen
-export const {height: HEIGHT} = Dimensions.get("window"); //Max Height of phone screen
+export const { width: WIDTH } = Dimensions.get("window"); //Max Width of phone screen
+export const { height: HEIGHT } = Dimensions.get("window"); //Max Height of phone screen
 
-export default (styles = StyleSheet.create({
+const CALL_ICON_SIZE = 50;
+const BACK_BTN_SIZE = 42;
+
+export default styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		justifyContent: "flex-start",
-		alignItems: "center",
-		fontFamily: "Roboto",
-		backgroundColor: Theme.COLOURS.WHITE
+		fontFamily: 'Lato-Regular',
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		backgroundColor: Theme.COLOURS.WHITE,
 	},
-	menuContainer: {
-		flex: 0.55,
-		justifyContent: "space-between",
-		alignItems: "center",
-		width: "100%",
+	infoContainer: {
+		flex: 0.35,
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		width: '100%',
 		paddingRight: 10,
-		elevation: 1
+		elevation: 5,
 	},
 	map: {
 		flex: 0.65,
-		width: WIDTH
+		width: WIDTH,
 	},
-	header: {
-		fontWeight: "bold",
-		fontSize: 18,
+	details: {
+		flex: 0.65,
+		width: '100%',
+		flexDirection: 'row',
+	},
+	avatar: {
+		backgroundColor: Theme.COLOURS.AVATAR,
+		position: 'absolute',
+		bottom: HEIGHT * 0.1,
+		borderRadius: 70,
+		padding: 10,
+	},
+	subHeader: {
+		fontSize: 15,
 		color: Theme.COLOURS.SUB_HEADER,
-		paddingVertical: 10
+	},
+	arrivalText: {
+		alignSelf: 'center',
+		fontFamily: 'Lato-Bold',
+		color: Theme.COLOURS.HEADER,
+		fontSize: 24,
 	},
 	subText: {
-		color: Theme.COLOURS.SUB_TEXT
+		textAlign: 'center',
+		fontFamily: 'Lato-Regular',
+		color: Theme.COLOURS.HEADER,
 	},
-	card: {
-		flex: 0.7,
-		height: 45,
-		flexDirection: "row",
-		justifyContent: "flex-start",
-		alignItems: "center",
-		borderRadius: 30,
+	msgInput: {
+		width: WIDTH * 0.7,
+		height: HEIGHT * 0.075,
+		borderRadius: 15,
+		borderColor: 'rgba(0,0,0, 0.1)',
+	},
+	callIcon: {
+		width: CALL_ICON_SIZE,
+		height: CALL_ICON_SIZE,
+		/*borderWidth: 1,
+		borderRadius: 25,*/
+	},
+	backBtn: {
+		display: 'flex',
+		position: 'absolute',
+		justifyContent: 'center',
+		alignItems: 'center',
+		height: BACK_BTN_SIZE,
+		width: BACK_BTN_SIZE,
+		top: 20,
+		left: 30,
 		backgroundColor: Theme.COLOURS.WHITE,
-		elevation: 5,
-		paddingLeft: 10
+		borderRadius: BACK_BTN_SIZE / 2,
+		elevation: 7,
 	},
-	successText: {
-		textAlign: "center",
-		fontFamily: "Lato-Regular",
-		color: Theme.COLOURS.PRIMARY
-	}
-}));
+	callBtn: {
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+		height: CALL_ICON_SIZE+10,
+		width: CALL_ICON_SIZE+10,
+		borderWidth: 2,
+		borderColor: 'rgba(171,184,195, 0.2)',
+		borderRadius: 25+10,
+	},
+});

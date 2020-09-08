@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { Button } from "galio-framework";
+import { StyleSheet, View } from "react-native";
+import { Button, Text } from "galio-framework";
 import AuthContext from "../../navigation/context";
 import Theme from "../../constants/Theme";
 
@@ -18,9 +18,10 @@ export default class Profile extends Component {
 			<View style={styles.container}>
 				<Text style={styles.text}> Welcome to the Profile Screen </Text>
 				<Button
-					style={{ alignSelf: "center"}} size={"small"} color={Theme.COLOURS.SECONDARY}
+					color={Theme.COLOURS.DISABLED}
+					style={{ alignSelf: "center"}}
 					onPress={() => signOut()}>
-					<Text bold size={16}>Sign Out</Text>
+					<Text bold size={18}>Sign Out</Text>
 				</Button>
 			</View>
 		);

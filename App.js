@@ -14,7 +14,8 @@ let customFonts = {
 	"Lato-Light": require("./app/assets/fonts/lato/Lato-Light.ttf"),
 	"Lato-Black": require("./app/assets/fonts/lato/Lato-Black.ttf"),
 	"Lato-Thin": require("./app/assets/fonts/lato/Lato-Thin.ttf"),
-	"DashIcons": require("./app/assets/icons/icomoon/fonts/icomoon.ttf")
+	"DashIcons": require("./app/assets/icons/general/fonts/icomoon.ttf"),
+	"Emojis": require("./app/assets/icons/emojis/fonts/icomoon.ttf")
 };
 
 export default class App extends React.Component {
@@ -62,4 +63,5 @@ async function performAPICalls() {
 
 async function downloadAssets() {
 	await Font.loadAsync(customFonts);
+
 }

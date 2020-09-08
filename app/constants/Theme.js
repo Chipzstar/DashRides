@@ -19,5 +19,7 @@ export default {
 		LINK: '#2393FB',
 		GREEN: "#23D40F",
 		DARK_GREY: "#343535",
+		AVATAR: "#C4C4C4",
+		MSG_FIELD: "rgba(213, 221, 224, 0.2)"
 	}
 };
