@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet } from "react-native";
-import Theme from "../constants/Theme";
-import { AppLoading } from "expo";
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import Theme from '../constants/Theme';
+import { AppLoading } from 'expo';
 
 const Loading = ({}) => {
 	const [] = useState();

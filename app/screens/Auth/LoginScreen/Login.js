@@ -24,7 +24,7 @@ export default class Login extends Component {
 		const { signIn } = this.context;
 		return (
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<Block flex style={styles.signInContainer}>
+				<Block style={styles.signInContainer}>
 					<StatusBar hidden/>
 					<Block>
 						<Text h1 style={styles.signInHeader}>Log in</Text>
@@ -43,10 +43,12 @@ export default class Login extends Component {
 						{(props) => (
 							<Block>
 								<Input
+									type="email-address"
 									value={props.values.email}
 									onChangeText={props.handleChange("email")}
 									placeholder={"Email"}
 									onSubmitEditing={Keyboard.dismiss}
+									bgColor="transparent"
 									style={styles.input}
 								/>
 								<Text style={styles.error} muted>{props.touched.email && props.errors.email}</Text>
@@ -56,6 +58,7 @@ export default class Login extends Component {
 									value={props.values.password}
 									onChangeText={props.handleChange("password")}
 									onSubmitEditing={Keyboard.dismiss}
+									bgColor="transparent"
 									password
 									viewPass
 								/>

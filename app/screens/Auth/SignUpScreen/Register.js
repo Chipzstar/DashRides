@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import AuthContext from "../../../navigation/context";
-import { Keyboard, SafeAreaView, ScrollView, TouchableWithoutFeedback, NativeModules } from "react-native";
-import UserPermissions from "../../../permissions/UserPermissions";
-import * as ImagePicker from "expo-image-picker";
-import SignUpSlide from "../../../components/SignUpSlide";
-import { width } from "../styles";
-import { getErrors, validateSignUp } from "../validation";
-import { StatusBar } from "expo-status-bar";
-import Theme from "../../../constants/Theme";
+import React, { Component } from 'react';
+import AuthContext from '../../../navigation/context';
+import { SafeAreaView, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import UserPermissions from '../../../permissions/UserPermissions';
+import * as ImagePicker from 'expo-image-picker';
+import SignUpSlide from '../../../components/SignUpSlide';
+import { width } from '../styles';
+import { getErrors, validateSignUp } from '../validation';
+import { StatusBar } from 'expo-status-bar';
+import Theme from '../../../constants/Theme';
 
 const slides = [
 	{
@@ -56,7 +56,6 @@ const slides = [
 
 export default class Register extends Component {
 	static contextType = AuthContext;
-	profileBtn = null;
 
 	constructor(props) {
 		super(props);
@@ -74,10 +73,6 @@ export default class Register extends Component {
 			},
 			errors: {}
 		};
-	}
-
-	componentDidMount() {
-		console.log(this.props.navigation.dangerouslyGetState());
 	}
 
 	navigateBack = () => {
@@ -108,10 +103,9 @@ export default class Register extends Component {
 		let isValid = await validateSignUp(inputs);
 		console.log("Form valid:", isValid);
 		if (isValid) {
-			await signUp(inputs);
-			Object.keys(inputs).forEach((key) => inputs[key] = "");
-			console.log(inputs)
-			this.setState({ inputs: inputs }, () => console.log(this.state));
+			signUp(inputs);
+			/*Object.keys(inputs).forEach((key) => inputs[key] = "");
+			this.setState({ inputs: inputs }, () => console.log(this.state));*/
 		} else {
 			let yupErrors = await getErrors(inputs);
 			this.setState({ errors: yupErrors }, () => {
@@ -163,7 +157,7 @@ export default class Register extends Component {
 			});
 		};
 		return (
-			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+			<TouchableWithoutFeedback>
 				<SafeAreaView style={{ flex: 1, backgroundColor: Theme.COLOURS.SIGN_UP}}>
 					<StatusBar hidden/>
 					<ScrollView

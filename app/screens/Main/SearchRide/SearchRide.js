@@ -64,7 +64,7 @@ const SearchRide = ({ route, navigation }) => {
 		}
 	};
 	useEffect(() => {
-		Geocoder.init(process.env.GOOGLE_PLACES_API_KEY, {language : "en"})
+		Geocoder.init(process.env.GOOGLE_GEOCODING_API_KEY, {language : "en"})
 		reverseGeocodeAsync(route.params).then((res) => setAddress(res))
 	}, []);
 	return (

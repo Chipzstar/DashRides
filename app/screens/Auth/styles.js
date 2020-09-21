@@ -22,6 +22,7 @@ export default (styles = StyleSheet.create({
 		paddingTop: 100
 	},
 	signInHeader: {
+		color: Theme.COLOURS.BLACK,
 		fontFamily: "Lato-Bold",
 		paddingBottom: 30,
 	},
@@ -33,8 +34,6 @@ export default (styles = StyleSheet.create({
 	input: {
 		width: width * 0.7,
 		height: 44,
-		padding: 10,
-		color: Theme.COLOURS.BLACK,
 		borderWidth: 1,
 		borderColor: "black",
 		marginTop: 5
@@ -46,7 +45,7 @@ export default (styles = StyleSheet.create({
 	},
 	error: {
 		width: width * 0.7,
-		color: 'crimson',
+		color: Theme.COLOURS.ERROR,
 		fontSize: 16,
 		fontWeight: "bold"
 	},

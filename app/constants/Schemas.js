@@ -4,12 +4,13 @@ export const usersSchema = {
 	firstname:"",
 	surname: "",
 	profilePicURL: "",
-	provider: "",
+	provider: "Firebase",
 	tel: "",
 	coordinate: {
 		0: "",
 		1: ""
-	}
+	},
+	fcmToken: ""
 }
 
 export const tripSchema = {

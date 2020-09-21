@@ -5,6 +5,9 @@
     "name": "DashRides",
     "slug": "DashRides",
     "version": "1.0.0",
+    "android": {
+      "googleServicesFile": "./android/app/google-services.json"
+    },
     "assetBundlePatterns": [
       "./app/assets/images/*",
       "./app/assets/icons/*",

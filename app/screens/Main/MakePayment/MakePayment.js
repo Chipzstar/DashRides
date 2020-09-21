@@ -3,7 +3,7 @@ import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
 import { Block, Button, Text } from 'galio-framework';
 import Theme from '../../../constants/Theme';
 import { StatusBar } from 'expo-status-bar';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import NumberFormat from 'react-number-format';
 import LottieView from 'lottie-react-native';
 import { createDashRequest, getDriverInfo } from '../../../config/Fire';
@@ -105,7 +105,6 @@ export default class MakePayment extends Component {
 								//check if values for driverKey and isAccepted have changed
 								if (reqChanges.length === 2) {
 									let driverName = await getDriverInfo(reqChanges[0]);
-									await dbRef.child(reqId).remove();
 									dbRef.off('child_changed');
 									this.props.navigation.navigate('NewRide', {
 										driverName
@@ -142,6 +141,7 @@ export default class MakePayment extends Component {
 	};
 
 	render() {
+		const { source } = this.state;
 		return (
 			<View style={styles.container}>
 				<StatusBar hidden />
@@ -156,8 +156,10 @@ export default class MakePayment extends Component {
 						latitudeDelta: 0.0922,
 						longitudeDelta: 0.0421,
 					}}
-					region={this.state.source}
-				/>
+					region={source}
+				>
+					<Marker coordinate={{ latitude: source.latitude, longitude: source.longitude }}/>
+				</MapView>
 				{this.state.findingDriver ? (
 					<Block
 						style={{
@@ -181,9 +183,7 @@ export default class MakePayment extends Component {
 				) : (
 					<View style={{ flex: 0.55, alignItems: 'center' }}>
 						<Block style={styles.menuContainer}>
-							<Text style={styles.header}>
-								Time To Pick A Dash!
-							</Text>
+							<Text style={styles.header}>Time To Pick A Dash!</Text>
 							<FlatList
 								contentContainerStyle={{ flexGrow: 1 }}
 								scrollEnabled={true}
@@ -193,52 +193,27 @@ export default class MakePayment extends Component {
 									return (
 										<TouchableOpacity
 											activeOpacity={0.9}
-											style={[
-												styles.dashRideBox,
-												item.isSelected &&
-													styles.btnSelected,
-											]}
-											onPress={() =>
-												this.toggleOption(index)
-											}
+											style={[styles.dashRideBox, item.isSelected && styles.btnSelected]}
+											onPress={() => this.toggleOption(index)}
 										>
 											<SvgCarIcon
-												color={
-													item.isSelected
-														? Theme.COLOURS.WHITE
-														: Theme.COLOURS
-																.SECONDARY
-												}
+												color={item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY}
 											/>
 											<Block style={{ paddingRight: 25 }}>
 												<Text
 													size={18}
 													color={
-														item.isSelected
-															? Theme.COLOURS
-																	.WHITE
-															: Theme.COLOURS
-																	.SECONDARY
+														item.isSelected ? Theme.COLOURS.WHITE : Theme.COLOURS.SECONDARY
 													}
 												>
 													{item.title}&nbsp;
-													<Text
-														small
-														style={
-															item.isSelected &&
-															styles.textSelected
-														}
-													>
+													<Text small style={item.isSelected && styles.textSelected}>
 														{item.passengers}
 													</Text>
 												</Text>
 												<Text
 													size={14}
-													style={
-														item.isSelected
-															? styles.textSelected
-															: styles.subText
-													}
+													style={item.isSelected ? styles.textSelected : styles.subText}
 												>
 													{item.arrivalTime}
 												</Text>
@@ -253,10 +228,8 @@ export default class MakePayment extends Component {
 													<Text
 														color={
 															item.isSelected
-																? Theme.COLOURS
-																		.WHITE
-																: Theme.COLOURS
-																		.SECONDARY
+																? Theme.COLOURS.WHITE
+																: Theme.COLOURS.SECONDARY
 														}
 														size={24}
 													>
@@ -279,11 +252,7 @@ export default class MakePayment extends Component {
 							>
 								<Block style={styles.card}>
 									<DashIcons name={'visa'} size={40} />
-									<Text
-										size={14}
-										color={Theme.COLOURS.SUB_TEXT}
-										bold
-									>
+									<Text size={14} color={Theme.COLOURS.SUB_TEXT} bold>
 										VISA ***** 4700
 									</Text>
 									<TouchableOpacity
@@ -291,28 +260,16 @@ export default class MakePayment extends Component {
 											flex: 1,
 											alignItems: 'center',
 										}}
-										onPress={() =>
-											console.log(
-												'Card drop down opened...'
-											)
-										}
+										onPress={() => console.log('Card drop down opened...')}
 									>
-										<DashIcons
-											name={'dropdown-arrow'}
-											size={14}
-											color={'grey'}
-										/>
+										<DashIcons name={'dropdown-arrow'} size={14} color={'grey'} />
 									</TouchableOpacity>
 								</Block>
 								<Button style={styles.recent}>
 									<DashIcons name={'clock'} size={22} />
 								</Button>
 							</Block>
-							<Button
-								style={styles.confirmBtn}
-								color={'#F2F2F2'}
-								onPress={this.validateConfirmation}
-							>
+							<Button style={styles.confirmBtn} color={'#F2F2F2'} onPress={this.validateConfirmation}>
 								<Text size={24} color={Theme.COLOURS.SECONDARY}>
 									Confirm your dash
 								</Text>

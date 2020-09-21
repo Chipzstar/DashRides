@@ -28,6 +28,7 @@ export default class Main extends Component {
 
 	async componentDidMount() {
 		const { user } = this.context;
+		console.log(await UserPermissions.registerPushNotifications(user))
 		if(user.displayName !== null) this.setState({ displayName: user.displayName });
 		await UserPermissions.getLocationPermission();
 		let location = await Location.getCurrentPositionAsync({
@@ -60,10 +61,9 @@ export default class Main extends Component {
 					}}
 					showsCompass={true}
 					showsUserLocation={true}
+					followsUserLocation={true}
 					style={styles.map}
-				>
-					<Marker title={"You are Here!"} coordinate={{ latitude, longitude }}/>
-				</MapView>
+				/>
 				<Block style={styles.menuContainer}>
 					<Text style={styles.welcomeText}>Hey {displayName}, nice to see you</Text>
 					<Block flex center style={styles.btnContainer}>

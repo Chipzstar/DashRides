@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "222913989504-c9qb3a9r68f47r9bcdbnbb5m3jd5sb5v.apps.googleusercontent.com",
+          "client_id": "222913989504-kjnqpva80nhpoq6gc2suc44mpcue6qn0.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.dashrides",
-            "certificate_hash": "fba35251c7b914945f97f1eca717103fa9e33e63"
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
         {
@@ -40,10 +40,10 @@
               "client_type": 3
             },
             {
-              "client_id": "222913989504-896ucrc5cqrv2octc5fcakfm1ko4hrhp.apps.googleusercontent.com",
+              "client_id": "222913989504-9jg8gcpfpnh63gau1fft8kac3r2sfh8f.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.RidesDash.DashRides"
+                "bundle_id": "com.RideDash.DashBoss"
               }
             }
           ]
