@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
 import { Block, Button, Text } from 'galio-framework';
-import Theme from '../../../constants/Theme';
 import { StatusBar } from 'expo-status-bar';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import NumberFormat from 'react-number-format';
 import LottieView from 'lottie-react-native';
-import { createDashRequest, getDriverInfo } from '../../../config/Fire';
+//helpers
+import { createDashRequest, createDashTrip, getDriverInfo } from '../../../config/Fire';
+import { setRideActiveStatus } from '../../../store/AsyncStorage';
+//firebase
 import firebase from 'firebase/app';
 import 'firebase/database';
 //context
@@ -16,6 +18,7 @@ import SvgCarIcon from '../../../components/SvgCarIcon';
 import DashIcons from '../../../components/DashIcons';
 //styles
 import styles from './styles';
+import Theme from '../../../constants/Theme';
 
 export default class MakePayment extends Component {
 	static contextType = AuthContext;
@@ -104,10 +107,18 @@ export default class MakePayment extends Component {
 								reqChanges.push(snap.val());
 								//check if values for driverKey and isAccepted have changed
 								if (reqChanges.length === 2) {
-									let driverName = await getDriverInfo(reqChanges[0]);
+									let driverInfo = await getDriverInfo(reqChanges[0]);
+									//turn off db listener
 									dbRef.off('child_changed');
+									let reqURL = (await createDashTrip(user.uid, reqChanges[0], {
+										...this.props.route.params,
+										...this.state.selection,
+									})).toString()
+									let tripId = reqURL.substr(reqURL.lastIndexOf('/') + 1)
+									await setRideActiveStatus()
 									this.props.navigation.navigate('NewRide', {
-										driverName
+										...driverInfo,
+										tripId
 									});
 								}
 							},

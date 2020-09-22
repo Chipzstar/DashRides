@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Alert, AsyncStorage } from 'react-native';
+import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 //firebase
 import * as firebaseApp from 'firebase/app';
 import 'firebase/auth';
@@ -37,10 +38,12 @@ const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const RootStackScreen = ({ userToken, showApp, authRoute, onAuth }) => (
+const RootStackScreen = ({ userToken, showApp, authRoute, onAuth, rideStatus }) => (
 	<RootStack.Navigator headerMode={'none'}>
 		{userToken ? (
-			<RootStack.Screen name={'App'} component={HomeTabScreen} />
+			<RootStack.Screen name={'App'}>
+				{props => <HomeTabScreen rideStatus={rideStatus} {...props} />}
+			</RootStack.Screen>
 		) : showApp ? (
 			<RootStack.Screen name={'Auth'}>
 				{props => <AuthStackScreen onAuth={onAuth} routeName={authRoute} />}
@@ -74,40 +77,27 @@ const AuthStackScreen = ({ routeName, onAuth }) => {
 	);
 };
 
-const MainStackScreen = () => (
-	<MainStack.Navigator headerMode={'none'} initialRouteName={'Main'}>
-		<MainStack.Screen name={'Home'} component={Main} />
-		<MainStack.Screen name={'SearchRide'} component={SearchRide} />
-		<MainStack.Screen name={'Preferences'} component={RiderPreferences} />
-		<MainStack.Screen name={'Payment'} component={MakePayment} />
-		<MainStack.Screen name={'NewRide'} component={NewRide} />
-	</MainStack.Navigator>
-);
+const MainStackScreen = ({ rideStatus }) => {
+	return (
+		<MainStack.Navigator headerMode={'none'} initialRouteName={rideStatus ? "NewRide" : "Main"}>
+			<MainStack.Screen name={'Home'} component={Main} />
+			<MainStack.Screen name={'SearchRide'} component={SearchRide} />
+			<MainStack.Screen name={'Preferences'} component={RiderPreferences} />
+			<MainStack.Screen name={'Payment'} component={MakePayment} />
+			<MainStack.Screen name={'NewRide'} component={NewRide} />
+		</MainStack.Navigator>
+	);
+};
 
-const HomeTabScreen = () => (
+const HomeTabScreen = ({ rideStatus }) => (
 	<Tab.Navigator
 		initialRouteName={'Main'}
 		headerMode={'none'}
-		screenOptions={({ route }) => ({
-			tabBarVisible: getTabBarVisibility(route),
-			tabBarIcon: ({ color }) => {
-				let iconName;
-				route.name === 'Main'
-					? (iconName = 'location')
-					: route.name === 'Profile'
-					? (iconName = 'user')
-					: (iconName = 'chat');
-				return <DashIcons name={iconName} size={40} color={color} />;
-			},
-		})}
+		screenOptions={({ route }) => ({ tabBarVisible: getTabBarVisibility(route) })}
 		tabBar={props => <TabBar {...props} />}
-		tabBarOptions={{
-			showLabel: false,
-			style: { height: 70 },
-		}}
 	>
 		<Tab.Screen name={'Social'} component={Socials} />
-		<Tab.Screen name={'Main'} component={MainStackScreen} />
+		<Tab.Screen name={'Main'}>{props => <MainStackScreen rideStatus={rideStatus} />}</Tab.Screen>
 		<Tab.Screen name={'Profile'} component={Profile} />
 	</Tab.Navigator>
 );
@@ -118,6 +108,7 @@ const AppNavigator = props => {
 	const [isLoading, setIsLoading] = useState(true);
 	const [userToken, setUserToken] = useState(null);
 	const [showApp, setShowApp] = useState(false);
+	const [rideActive, setRideStatus] = useState(false);
 	const [authRoute, setAuthRoute] = useState();
 
 	const authContext = useMemo(
@@ -152,7 +143,6 @@ const AppNavigator = props => {
 					});
 			},
 			signUp: inputs => {
-				console.log('Sign up function entered...', inputs);
 				try {
 					unsubscribeAuth();
 					firebaseApp
@@ -197,7 +187,7 @@ const AppNavigator = props => {
 							Alert.alert('That email address is invalid!');
 						}
 					} else {
-						console.error(err)
+						console.error(err);
 					}
 				}
 			},
@@ -221,20 +211,28 @@ const AppNavigator = props => {
 
 	// Handle user state changes
 	function onAuthStateChanged(user) {
-		setUserToken(user);
+		setUserToken(user.uid);
 		console.log('onAuthStateChanged');
 		if (isLoading) setIsLoading(false);
 	}
 
+	// Checks if the user's first time visiting the app
 	async function checkWelcomeStatus() {
-		console.log(showApp, userToken);
 		let value = await AsyncStorage.getItem('SHOW_APP');
 		console.log('Ready to show app:', !!value);
 		setShowApp(!!value);
 	}
 
+	//check if user has a ride currently active
+	async function checkRideStatus() {
+		let value = await AsyncStorage.getItem('RIDE_ACTIVE');
+		console.log('Ride status:', !!value);
+		setRideStatus(!!value);
+	}
+
 	useEffect(() => {
 		checkWelcomeStatus();
+		checkRideStatus();
 		/*const unsubscribeMessaging = firebase.messaging().onMessage(async remoteMessage => {
 			console.log(remoteMessage)
 			/!*Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));*!/
@@ -243,7 +241,7 @@ const AppNavigator = props => {
 		return () => {
 			unsubscribeAuth();
 			//unsubscribeMessaging()
-		}
+		};
 	}, []);
 
 	async function onAuth(routeName) {
@@ -257,7 +255,13 @@ const AppNavigator = props => {
 			{isLoading ? (
 				<Loading />
 			) : (
-				<RootStackScreen userToken={userToken} showApp={showApp} authRoute={authRoute} onAuth={onAuth} />
+				<RootStackScreen
+					userToken={userToken}
+					showApp={showApp}
+					authRoute={authRoute}
+					onAuth={onAuth}
+					rideStatus={rideActive}
+				/>
 			)}
 		</AuthProvider>
 	);

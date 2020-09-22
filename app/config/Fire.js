@@ -2,7 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/storage';
 import 'firebase/database';
-import { requestSchema } from '../constants/Schemas';
+import { requestSchema, tripSchema } from '../constants/Schemas';
 
 export const config = {
 	apiKey: 'AIzaSyB5wg9Gu6z7LDwvDB9BfV03VycPk-aRFZE',
@@ -57,7 +57,7 @@ export const updateUserCoordinates = async (user, coords) => {
 		try {
 			if (user) {
 				let dataSnapshot = (await firebase.database().ref(`users/${user.uid}/coordinate`).once('value')).val();
-				console.log("DataSnapshot", dataSnapshot);
+				console.log('DataSnapshot', dataSnapshot);
 				if (dataSnapshot[0] === coords.latitude && dataSnapshot[1] === coords.longitude)
 					resolve('Coords have not changed');
 				else {
@@ -83,8 +83,7 @@ export const createDashRequest = async (
 			if (userId) {
 				let request = await firebase
 					.database()
-					.ref()
-					.child('requests')
+					.ref('requests')
 					.push({
 						...requestSchema,
 						riderKey: userId,
@@ -107,17 +106,67 @@ export const createDashRequest = async (
 	});
 };
 
+export const createDashTrip = async (userId, driverId, { dest, source, price, arrivalTime, passengers }) => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			if (userId) {
+				let request = await firebase
+					.database()
+					.ref('trips')
+					.push({
+						...tripSchema,
+						riderKey: userId,
+						driverKey: driverId,
+						sourcePlaceName: source.name,
+						sourceAddress: source.formatted_address,
+						pickupCoordinate: {...source.geometry.location},
+						destPlaceName: dest.name,
+						destAddress: dest.formatted_address,
+						destinationCoordinate: {...dest.geometry.location},
+						tripFare: price,
+						arrivalTime,
+						passengers,
+					});
+				resolve(request);
+			}
+		} catch (e) {
+			reject(e);
+		}
+	});
+};
+
 export const getDriverInfo = async driverId => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			let name = await firebase
+			let name = (await firebase
 				.database()
 				.ref()
 				.child('drivers')
 				.child(driverId)
 				.child('firstname')
-				.once('value');
-			resolve(name.val());
+				.once('value')).val();
+			let car = (await firebase
+				.database()
+				.ref()
+				.child('drivers')
+				.child(driverId)
+				.child('car')
+				.once('value')).val();
+			let carColour = (await firebase
+				.database()
+				.ref()
+				.child('drivers')
+				.child(driverId)
+				.child('car')
+				.once('value')).val();
+			let reg = (await firebase
+				.database()
+				.ref()
+				.child('drivers')
+				.child(driverId)
+				.child('reg')
+				.once('value')).val();
+			resolve({ name, car, carColour, reg });
 		} catch (err) {
 			console.log(err);
 			reject(err);

@@ -42,7 +42,7 @@ export default class Main extends Component {
 			longitude: location.coords.longitude,
 			user: firebase.auth().currentUser
 		}, async () => console.log(await updateUserCoordinates(this.state.user, location.coords)));
-		console.log("Expo location:", location);
+		console.log("Current location:", location);
 	}
 
 	render() {

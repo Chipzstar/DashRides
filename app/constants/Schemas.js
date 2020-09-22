@@ -14,16 +14,19 @@ export const usersSchema = {
 }
 
 export const tripSchema = {
-	tripId: "",
 	riderKey: "",
 	driverKey: "",
-	pickUpCoordinate: [0.0,0.0],
+	sourceAddress: "",
+	sourcePlaceName: "",
+	destAddress: "",
+	destPlaceName: "",
+	pickupCoordinate: [0.0,0.0],
 	destinationCoordinate: [0.0,0.0],
 	canCancelTrip: true,
-	tripAccepted: false,
 	driverFare: Number(0.00),
 	tripFare: Number(0.00),
-	applicationFee: Number(0.00)
+	applicationFee: Number(0.00),
+	userHasPayed: false
 }
 
 export const requestSchema = {

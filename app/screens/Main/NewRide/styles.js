@@ -47,7 +47,7 @@ export default styles = StyleSheet.create({
 		alignSelf: 'center',
 		fontFamily: 'Lato-Bold',
 		color: Theme.COLOURS.HEADER,
-		fontSize: 24,
+		fontSize: 21,
 	},
 	subText: {
 		textAlign: 'center',

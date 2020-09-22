@@ -12,17 +12,33 @@ import btnCall from '../../../assets/images/btn_call.png';
 import Theme from '../../../constants/Theme';
 import Emojis from '../../../components/Emojis';
 import DashIcons from '../../../components/DashIcons';
+//firebase
+import firebase from 'firebase/app';
 
 class NewRide extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = {
+			arrivalTime: '',
+		};
+	}
+
+	componentDidMount() {
+		let { tripId } = this.props.route.params;
+		firebase
+			.database()
+			.ref(`trips/${tripId}`)
+			.once(
+				'value',
+				snapshot => this.setState({ arrivalTime: snapshot.val().arrivalTime }),
+				err => console.error(err)
+			);
 	}
 
 	render() {
 		const AVATAR_SIZE = 100;
 		let { route, navigation } = this.props;
-		//let { driverName } = route.params;
+		let { name, reg, car, carColour } = route.params;
 		return (
 			<View style={styles.container}>
 				<StatusBar hidden />
@@ -38,11 +54,7 @@ class NewRide extends React.Component {
 						longitudeDelta: 0.0421,
 					}}
 				/>
-				<TouchableOpacity
-					activeOpacity={0.7}
-					style={styles.backBtn}
-					onPress={this.props.navigation.goBack}
-				>
+				<TouchableOpacity activeOpacity={0.7} style={styles.backBtn} onPress={this.props.navigation.goBack}>
 					<DashIcons name='back' size={28} color={'#4B545A'} />
 				</TouchableOpacity>
 				<Block style={styles.infoContainer}>
@@ -62,7 +74,7 @@ class NewRide extends React.Component {
 							</Block>
 							<Text style={styles.subHeader}>
 								<Text style={{ textDecorationLine: 'underline' }} bold>
-									Oscar&nbsp;
+									{name}&nbsp;
 								</Text>
 								is on his way!
 							</Text>
@@ -89,14 +101,12 @@ class NewRide extends React.Component {
 									flex: 1,
 									flexDirection: 'row',
 									justifyContent: 'center',
-									alignItems: 'center',
+									alignItems: 'center'
 								}}
 							>
 								<Block style={{ flex: 1, alignItems: 'center', justifyContent: 'space-around' }}>
 									<Image source={dash_car} style={{ width: WIDTH * 0.2, height: 50 }} />
-									<Text style={styles.subText}>
-										<Text>{'Vauxhall Astra\n'}</Text>7Y8 6YY
-									</Text>
+									<Text style={styles.subText}>{`${car}\n${reg}`}</Text>
 								</Block>
 								<Block style={{ flex: 1 }}>
 									<Text style={styles.subText}>
@@ -104,7 +114,9 @@ class NewRide extends React.Component {
 									</Text>
 								</Block>
 							</Block>
-							<Text style={styles.arrivalText}>10:14 arrival</Text>
+							<Block style={{flexDirection: 'row', alignItems: "center"}}>
+								<Text style={styles.arrivalText}>{this.state.arrivalTime}</Text>
+							</Block>
 						</Block>
 					</Block>
 					<Block
@@ -120,10 +132,10 @@ class NewRide extends React.Component {
 						<Input
 							bgColor={Theme.COLOURS.MSG_FIELD}
 							style={styles.msgInput}
-							placeholder={`send Oscar a message...`}
+							placeholder={`send ${name} a message...`}
 						/>
 						<TouchableOpacity activeOpacity={0.5} style={styles.callBtn}>
-							<Image source={btnCall} style={styles.callIcon}/>
+							<Image source={btnCall} style={styles.callIcon} />
 						</TouchableOpacity>
 					</Block>
 				</Block>
