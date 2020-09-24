@@ -63,8 +63,6 @@ export default styles = StyleSheet.create({
 	callIcon: {
 		width: CALL_ICON_SIZE,
 		height: CALL_ICON_SIZE,
-		/*borderWidth: 1,
-		borderRadius: 25,*/
 	},
 	backBtn: {
 		display: 'flex',

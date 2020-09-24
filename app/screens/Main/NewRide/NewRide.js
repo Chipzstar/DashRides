@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import styles, { WIDTH } from './styles';
@@ -14,32 +15,42 @@ import Emojis from '../../../components/Emojis';
 import DashIcons from '../../../components/DashIcons';
 //firebase
 import firebase from 'firebase/app';
+import { AppLoading } from 'expo';
+import { setRideActiveStatus } from '../../../store/AsyncStorage';
 
 class NewRide extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			arrivalTime: '',
+			arrivalTime: ''
 		};
 	}
 
-	componentDidMount() {
-		let { tripId } = this.props.route.params;
-		firebase
+	async componentDidMount() {
+		let { tripId, reg, name, car, carColour } =
+			this.props.route.params || JSON.parse(await AsyncStorage.getItem('RIDE_ACTIVE'));
+		await firebase
 			.database()
 			.ref(`trips/${tripId}`)
 			.once(
 				'value',
-				snapshot => this.setState({ arrivalTime: snapshot.val().arrivalTime }),
+				snapshot => {
+					this.setState({
+						reg,
+						name,
+						car,
+						carColour,
+						arrivalTime: snapshot.val().arrivalTime,
+					}, () => setRideActiveStatus({ tripId, reg, name, car, carColour, arrivalTime: this.state.arrivalTime }));
+				},
 				err => console.error(err)
 			);
 	}
 
 	render() {
 		const AVATAR_SIZE = 100;
-		let { route, navigation } = this.props;
-		let { name, reg, car, carColour } = route.params;
-		return (
+		let { car, name, reg } = this.props.route.params || this.state;
+		return this.state.arrivalTime ? (
 			<View style={styles.container}>
 				<StatusBar hidden />
 				<MapView
@@ -101,7 +112,7 @@ class NewRide extends React.Component {
 									flex: 1,
 									flexDirection: 'row',
 									justifyContent: 'center',
-									alignItems: 'center'
+									alignItems: 'center',
 								}}
 							>
 								<Block style={{ flex: 1, alignItems: 'center', justifyContent: 'space-around' }}>
@@ -114,7 +125,7 @@ class NewRide extends React.Component {
 									</Text>
 								</Block>
 							</Block>
-							<Block style={{flexDirection: 'row', alignItems: "center"}}>
+							<Block style={{ flexDirection: 'row', alignItems: 'center' }}>
 								<Text style={styles.arrivalText}>{this.state.arrivalTime}</Text>
 							</Block>
 						</Block>
@@ -140,6 +151,8 @@ class NewRide extends React.Component {
 					</Block>
 				</Block>
 			</View>
+		) : (
+			<AppLoading/>
 		);
 	}
 }

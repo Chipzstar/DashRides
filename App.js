@@ -5,6 +5,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./app/navigation/AppNavigator";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import AsyncStorage from '@react-native-community/async-storage';
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf"),
@@ -29,6 +30,7 @@ export default class App extends React.Component {
 
 	async componentDidMount() {
 		try {
+			//await AsyncStorage.removeItem("RIDE_ACTIVE");
 			await SplashScreen.preventAutoHideAsync();
 		} catch (e) {
 			console.warn(e);

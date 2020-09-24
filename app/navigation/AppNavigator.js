@@ -211,8 +211,8 @@ const AppNavigator = props => {
 
 	// Handle user state changes
 	function onAuthStateChanged(user) {
-		setUserToken(user.uid);
-		console.log('onAuthStateChanged');
+		setUserToken(user ? user.uid : user);
+		console.log('onAuthStateChanged', user ? user.uid : user);
 		if (isLoading) setIsLoading(false);
 	}
 

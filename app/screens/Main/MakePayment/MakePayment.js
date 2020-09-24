@@ -79,7 +79,6 @@ export default class MakePayment extends Component {
 
 	validateConfirmation = async () => {
 		const { user } = this.context;
-		console.log('UserInfo', user);
 		console.log('Selection', Object.values(this.state.selection));
 		if (Object.values(this.state.selection).some(x => x === '')) {
 			Alert.alert(
@@ -115,7 +114,7 @@ export default class MakePayment extends Component {
 										...this.state.selection,
 									})).toString()
 									let tripId = reqURL.substr(reqURL.lastIndexOf('/') + 1)
-									await setRideActiveStatus()
+									await setRideActiveStatus({...driverInfo, tripId})
 									this.props.navigation.navigate('NewRide', {
 										...driverInfo,
 										tripId
@@ -146,9 +145,7 @@ export default class MakePayment extends Component {
 				}
 				return item;
 			});
-		this.setState({ rideOptions: updatedRideOptions }, () =>
-			console.log(this.state.rideOptions)
-		);
+		this.setState({ rideOptions: updatedRideOptions });
 	};
 
 	render() {

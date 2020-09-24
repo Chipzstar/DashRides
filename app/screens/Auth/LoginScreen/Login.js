@@ -15,10 +15,6 @@ export default class Login extends Component {
 		super(props);
 	}
 
-	componentDidMount() {
-		console.log(this.props.navigation.dangerouslyGetState());
-	}
-
 	render() {
 		const { navigation } = this.props;
 		const { signIn } = this.context;

@@ -9,9 +9,9 @@ export const clearWelcomeStatus = async () => {
 	}
 }
 
-export const setRideActiveStatus = async () => {
+export const setRideActiveStatus = async (rideDetails) => {
     try {
-    	await AsyncStorage.setItem("RIDE_ACTIVE", "true")
+    	await AsyncStorage.setItem("RIDE_ACTIVE", JSON.stringify(rideDetails))
 	    console.log("Ride status: ACTIVE");
     } catch (err) {
 	    console.error(err)
