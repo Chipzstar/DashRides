@@ -6,8 +6,9 @@ import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import NumberFormat from 'react-number-format';
 import LottieView from 'lottie-react-native';
 //helpers
-import { createDashRequest, createDashTrip, getDriverInfo } from '../../../config/Fire';
-import { setRideActiveStatus } from '../../../store/AsyncStorage';
+import { createDashRequest, getDriverInfo } from '../../../config/Fire';
+import { createPickupInfo, updatePickupInfo } from '../../../store/actions/pickupAction';
+import { connect } from 'react-redux';
 //firebase
 import firebase from 'firebase/app';
 import 'firebase/database';
@@ -19,8 +20,11 @@ import DashIcons from '../../../components/DashIcons';
 //styles
 import styles from './styles';
 import Theme from '../../../constants/Theme';
+//constants
+import { pickupSchema } from '../../../constants/Schemas';
+import { RIDE_STATUS } from '../../../store/actionTypes';
 
-export default class MakePayment extends Component {
+class MakePayment extends Component {
 	static contextType = AuthContext;
 
 	constructor(props) {
@@ -87,38 +91,32 @@ export default class MakePayment extends Component {
 			);
 		} else {
 			try {
-				let result = await createDashRequest(user.uid, {
+				let request = await createDashRequest(user.uid, {
 					...this.props.route.params,
 					...this.state.selection,
 				});
-				console.log(result);
-				let reqURL = String(result),
-					reqChanges = [];
-				let reqId = reqURL.substr(reqURL.lastIndexOf('/') + 1);
-				const dbRef = firebase.database().ref(`requests`);
+				this.props.setRideStatus(request.key);
+				const dbRef = firebase.database().ref(`trips`);
+				let reqChanges = [];
 				setTimeout(
 					() =>
-						dbRef.child(reqId).on(
+						dbRef.child(request.key).on(
 							'child_changed',
 							async snap => {
-								//driverKey and isAccepted keys will arrive one after the other
-								//both need to be stored in the same place - array
+								// driverKey and tripAccepted keys will arrive one after the other
+								// both need to be stored in the same place - array
 								reqChanges.push(snap.val());
 								//check if values for driverKey and isAccepted have changed
 								if (reqChanges.length === 2) {
 									let driverInfo = await getDriverInfo(reqChanges[0]);
 									//turn off db listener
 									dbRef.off('child_changed');
-									let reqURL = (await createDashTrip(user.uid, reqChanges[0], {
-										...this.props.route.params,
-										...this.state.selection,
-									})).toString()
-									let tripId = reqURL.substr(reqURL.lastIndexOf('/') + 1)
-									await setRideActiveStatus({...driverInfo, tripId})
-									this.props.navigation.navigate('NewRide', {
+									await this.props.createPickup({
+										...pickupSchema,
 										...driverInfo,
-										tripId
-									});
+										driverKey: reqChanges[0]
+									})
+									this.props.navigation.navigate('NewRide');
 								}
 							},
 							err => console.error(err)
@@ -178,7 +176,7 @@ export default class MakePayment extends Component {
 					>
 						<LottieView
 							ref={animation => (this.animation = animation)}
-							source={require('../../../assets/animations/13477-sample.json')}
+							source={require('../../../assets/animations/Bodymovin-rocket.json')}
 							autoPlay
 							loop
 							style={{ width: 300, height: 300 }}
@@ -289,3 +287,12 @@ export default class MakePayment extends Component {
 		);
 	}
 }
+
+const mapStateToProps = state => ({})
+
+const mapDispatchToProps = dispatch => ({
+	createPickup: (data) => dispatch(createPickupInfo(data)),
+	setRideStatus: (id) => dispatch({type: RIDE_STATUS.ON_SEARCH, id })
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(MakePayment);

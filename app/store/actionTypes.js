@@ -1,0 +1,12 @@
+export const RESET = "RESET";
+export const CREATE_PICKUP = "CREATE_PICKUP";
+export const UPDATE_PICKUP = "UPDATE_PICKUP";
+export const REMOVE_PICKUP = "REMOVE_PICKUP";
+export const INTRO_COMPLETE = "INTRO";
+export const CLEAR = "CLEAR_RIDE_STATUS";
+export const RIDE_STATUS = Object.freeze({
+	ON_SEARCH: "SEARCHING",
+	ON_PICKUP: "PICKUP",
+	ON_DROPOFF: "DROPOFF",
+	ON_COMPLETE: "COMPLETE"
+})

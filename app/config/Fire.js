@@ -3,6 +3,7 @@ import 'firebase/auth';
 import 'firebase/storage';
 import 'firebase/database';
 import { requestSchema, tripSchema } from '../constants/Schemas';
+import moment from 'moment';
 
 export const config = {
 	apiKey: 'AIzaSyB5wg9Gu6z7LDwvDB9BfV03VycPk-aRFZE',
@@ -85,7 +86,7 @@ export const createDashRequest = async (
 				let { geometry: { location:dropoff } } = dest;
 				let request = await firebase
 					.database()
-					.ref('requests')
+					.ref('trips')
 					.push({
 						...requestSchema,
 						riderKey: userId,
@@ -112,7 +113,7 @@ export const createDashRequest = async (
 	});
 };
 
-export const createDashTrip = async (userId, driverId, { dest, source, price, arrivalTime, passengers }) => {
+/*export const createDashTrip = async (userId, driverId, { dest, source, price, arrivalTime, passengers }) => {
 	return new Promise(async (resolve, reject) => {
 		try {
 			if (userId) {
@@ -139,7 +140,7 @@ export const createDashTrip = async (userId, driverId, { dest, source, price, ar
 			reject(e);
 		}
 	});
-};
+};*/
 
 export const getDriverInfo = async driverId => {
 	return new Promise(async (resolve, reject) => {
@@ -156,12 +157,51 @@ export const getDriverInfo = async driverId => {
 			let reg = (
 				await firebase.database().ref().child('drivers').child(driverId).child('reg').once('value')
 			).val();
-			resolve({ name, car, carColour, reg });
+			resolve({ driverName: name, car, carColour, reg });
 		} catch (err) {
 			console.log(err);
 			reject(err);
 		}
 	});
 };
+
+export const getDriverCoordinates = async (userId, driverId) => {
+	return new Promise(async (resolve, reject) => {
+		try {
+			if(userId){
+				let coords = (
+					await firebase.database().ref().child('drivers').child(driverId).child('coordinate').once('value')
+				).val();
+				resolve(coords);
+			}
+		} catch (e) {
+			console.log(e)
+			reject(e)
+		}
+	})
+}
+
+export const updateArrivalTime = async (user, tripId, duration) => {
+	function getNewArrivalTime() {
+		let val = moment().add(duration, 'm')
+		return val.format("HH:mm");
+	}
+	return new Promise(async (resolve, reject) => {
+		try {
+			if(user){
+				await firebase
+					.database()
+					.ref(`trips/${tripId}`)
+					.update({
+						arrivalTime: `${getNewArrivalTime()} arrival`
+					})
+			}
+			resolve(getNewArrivalTime())
+		} catch (err) {
+			console.error(err)
+			reject(err)
+		}
+	})
+}
 
 export default firebase.initializeApp(config);

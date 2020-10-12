@@ -1,11 +1,15 @@
-import React from "react";
-import "react-native-gesture-handler";
-import * as Font from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
-import { NavigationContainer } from "@react-navigation/native";
-import AppNavigator from "./app/navigation/AppNavigator";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import AsyncStorage from '@react-native-community/async-storage';
+import React from 'react';
+import 'react-native-gesture-handler';
+import 'react-native-console-time-polyfill';
+import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './app/navigation/AppNavigator';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistor, store } from './app/store/store';
 
 let customFonts = {
 	"Arciform": require("./app/assets/fonts/arciformff/Arciform.otf"),
@@ -30,7 +34,6 @@ export default class App extends React.Component {
 
 	async componentDidMount() {
 		try {
-			//await AsyncStorage.removeItem("RIDE_ACTIVE");
 			await SplashScreen.preventAutoHideAsync();
 		} catch (e) {
 			console.warn(e);
@@ -39,6 +42,7 @@ export default class App extends React.Component {
 	}
 
 	prepareResources = async () => {
+		await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
 		await downloadAssets();
 		this.setState({ loading: false }, async () => {
 			await SplashScreen.hideAsync();
@@ -51,19 +55,21 @@ export default class App extends React.Component {
 			return null;
 		}
 		return (
-			<SafeAreaProvider>
-				<NavigationContainer>
-					<AppNavigator />
-				</NavigationContainer>
-			</SafeAreaProvider>
+			<Provider store={store}>
+				<PersistGate loading={null} persistor={persistor}>
+					<SafeAreaProvider>
+						<NavigationContainer>
+							<AppNavigator />
+						</NavigationContainer>
+					</SafeAreaProvider>
+				</PersistGate>
+			</Provider>
 		);
 	}
 }
 
-async function performAPICalls() {
-}
+async function performAPICalls() {}
 
 async function downloadAssets() {
 	await Font.loadAsync(customFonts);
-
 }

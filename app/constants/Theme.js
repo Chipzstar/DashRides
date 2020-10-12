@@ -21,5 +21,11 @@ export default {
 		DARK_GREY: "#343535",
 		AVATAR: "#C4C4C4",
 		MSG_FIELD: "rgba(213, 221, 224, 0.2)"
+	},
+	IMAGES: {
+		carLeft: require('../assets/images/car_left.png'),
+		carTop: require('../assets/images/car_top.png'),
+		carBottom: require('../assets/images/car_bottom.png'),
+		carRight: require('../assets/images/car_right.png')
 	}
 };

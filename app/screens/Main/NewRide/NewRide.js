@@ -1,11 +1,15 @@
 import React from 'react';
 import { Image, TouchableOpacity, View } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { connect } from 'react-redux';
+import * as Location from 'expo-location';
 import { StatusBar } from 'expo-status-bar';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import styles, { WIDTH } from './styles';
 import { Block, Input, Text } from 'galio-framework';
 import * as PropTypes from 'prop-types';
+import LottieView from 'lottie-react-native';
+import AuthContext from '../../../navigation/context';
 //assets
 import dash_car from '../../../assets/images/dash_car.png';
 import oscar from '../../../assets/images/oscar.jpg';
@@ -13,58 +17,160 @@ import btnCall from '../../../assets/images/btn_call.png';
 import Theme from '../../../constants/Theme';
 import Emojis from '../../../components/Emojis';
 import DashIcons from '../../../components/DashIcons';
+//helpers
+import edgePadding from '../../../helpers/edgePadding';
+import UserPermissions from '../../../permissions/UserPermissions';
+import { createPickupInfo, updatePickupInfo } from '../../../store/actions/pickupAction';
 //firebase
 import firebase from 'firebase/app';
-import { AppLoading } from 'expo';
-import { setRideActiveStatus } from '../../../store/AsyncStorage';
+import 'firebase/database';
+import { getDriverCoordinates, getDriverInfo } from '../../../config/Fire';
+import { pickupSchema } from '../../../constants/Schemas';
 
 class NewRide extends React.Component {
+	static contextType = AuthContext;
+
 	constructor(props) {
 		super(props);
 		this.state = {
-			arrivalTime: ''
+			driverCoords: {
+				lat: 0,
+				lng: 0,
+			},
+			markers: [],
+			latitude: 0,
+			longitude: 0,
+			latitudeDelta: 0.01,
+			longitudeDelta: 0.01,
 		};
+		this.mapView = React.createRef();
+		this.animation = React.createRef();
 	}
 
 	async componentDidMount() {
-		let { tripId, reg, name, car, carColour } =
-			this.props.route.params || JSON.parse(await AsyncStorage.getItem('RIDE_ACTIVE'));
+		await UserPermissions.getLocationPermission();
+		const { uid } = this.context.user;
+		let { tripId } = this.props.rideStatus;
+		let {
+			coords: { latitude, longitude },
+		} = await Location.getCurrentPositionAsync({
+			accuracy: Location.Accuracy.BestForNavigation,
+			enableHighAccuracy: true,
+			maximumAge: 2000,
+			timeout: 20000,
+		});
+
+		//TODO
 		await firebase
 			.database()
 			.ref(`trips/${tripId}`)
-			.once(
+			.on(
 				'value',
-				snapshot => {
-					this.setState({
-						reg,
-						name,
-						car,
-						carColour,
-						arrivalTime: snapshot.val().arrivalTime,
-					}, () => setRideActiveStatus({ tripId, reg, name, car, carColour, arrivalTime: this.state.arrivalTime }));
+				async snapshot => {
+					console.log('Snapshot:', snapshot.val());
+					//check if the trip is still accepted
+					if (snapshot.val().driverKey && snapshot.val().tripAccepted) {
+						const { driverKey, arrivalTime } = snapshot.val();
+						//compare local pickup state with database snapshot
+						if (this.props.pickUp.driverKey === undefined) {
+							let driverInfo = await getDriverInfo(driverKey);
+							this.props.createPickupInfo({
+								...pickupSchema,
+								...driverInfo,
+								driverKey,
+								arrivalTime
+							});
+						}
+						let [lat, lng] = await getDriverCoordinates(uid, driverKey);
+						this.setState(
+							{
+								markers: [{ id: 'driver', latitude: lat, longitude: lng }],
+								driverCoords: { lat, lng },
+								latitude,
+								longitude
+							},
+							() => this.props.updatePickupInfo({arrivalTime})
+						);
+					}
 				},
 				err => console.error(err)
 			);
 	}
 
+	componentWillUnmount() {
+		clearInterval(this.updateTrip);
+	}
+
+	updateTrip = setInterval(async () => {
+		const { latitude, longitude, driverCoords } = this.state;
+		const { uid } = this.context.user;
+		const { driverKey } = this.props.pickUp;
+		if (driverKey) {
+			let [lat, lng] = await getDriverCoordinates(uid, driverKey);
+			this.setState(
+				{
+					driverCoords: { lat, lng },
+					markers: [{ id: 'driver', latitude: lat, longitude: lng }],
+				},
+				() =>
+					this.mapView.fitToCoordinates(
+						[
+							{ latitude, longitude },
+							{ latitude: driverCoords.lat, longitude: driverCoords.lng },
+						],
+						{
+							edgePadding,
+						}
+					)
+			);
+		}
+	}, 20 * 1000);
+
 	render() {
 		const AVATAR_SIZE = 100;
-		let { car, name, reg } = this.props.route.params || this.state;
-		return this.state.arrivalTime ? (
+		let { latitude, longitude, latitudeDelta, longitudeDelta, markers, driverCoords } = this.state;
+		let { car, driverName, reg, arrivalTime } = this.props.pickUp;
+		return arrivalTime && markers.length ? (
 			<View style={styles.container}>
 				<StatusBar hidden />
 				<MapView
+					ref={ref => (this.mapView = ref)}
 					provider={PROVIDER_GOOGLE}
+					style={styles.map}
 					showsCompass={true}
 					showsUserLocation={true}
-					style={styles.map}
-					initialRegion={{
-						latitude: 37.78825,
-						longitude: -122.4324,
-						latitudeDelta: 0.0922,
-						longitudeDelta: 0.0421,
+					followsUserLocation={true}
+					region={{
+						latitude,
+						longitude,
+						latitudeDelta,
+						longitudeDelta,
 					}}
-				/>
+				>
+					{markers.map(({ id, latitude, longitude }, index) => (
+						<Marker key={index} coordinate={{ latitude, longitude }} identifier={id}>
+							{index === 0 && <Image source={Theme.IMAGES.carTop} style={{ width: 25, height: 50 }} />}
+						</Marker>
+					))}
+					<MapViewDirections
+						apikey={process.env.GOOGLE_DIRECTIONS_API_KEY}
+						origin={{ latitude: driverCoords.lat, longitude: driverCoords.lng }}
+						destination={{ latitude, longitude }}
+						strokeWidth={5}
+						strokeColor={Theme.COLOURS.PRIMARY}
+						onStart={params => {
+							console.log(`Started Route between ${params.origin} and ${params.destination}`);
+						}}
+						onReady={result => {
+							console.log(`Distance: ${result.distance} km`);
+							console.log(`Duration: ${result.duration} min.`);
+							this.mapView.fitToCoordinates(result.coordinates, {
+								edgePadding,
+							});
+						}}
+						onError={err => console.error(err)}
+					/>
+				</MapView>
 				<TouchableOpacity activeOpacity={0.7} style={styles.backBtn} onPress={this.props.navigation.goBack}>
 					<DashIcons name='back' size={28} color={'#4B545A'} />
 				</TouchableOpacity>
@@ -85,7 +191,7 @@ class NewRide extends React.Component {
 							</Block>
 							<Text style={styles.subHeader}>
 								<Text style={{ textDecorationLine: 'underline' }} bold>
-									{name}&nbsp;
+									{driverName}&nbsp;
 								</Text>
 								is on his way!
 							</Text>
@@ -126,7 +232,7 @@ class NewRide extends React.Component {
 								</Block>
 							</Block>
 							<Block style={{ flexDirection: 'row', alignItems: 'center' }}>
-								<Text style={styles.arrivalText}>{this.state.arrivalTime}</Text>
+								<Text style={styles.arrivalText}>{arrivalTime}</Text>
 							</Block>
 						</Block>
 					</Block>
@@ -143,7 +249,7 @@ class NewRide extends React.Component {
 						<Input
 							bgColor={Theme.COLOURS.MSG_FIELD}
 							style={styles.msgInput}
-							placeholder={`send ${name} a message...`}
+							placeholder={`send ${driverName} a message...`}
 						/>
 						<TouchableOpacity activeOpacity={0.5} style={styles.callBtn}>
 							<Image source={btnCall} style={styles.callIcon} />
@@ -152,7 +258,16 @@ class NewRide extends React.Component {
 				</Block>
 			</View>
 		) : (
-			<AppLoading/>
+			<View style={[styles.container, { justifyContent: 'center' }]}>
+				<LottieView
+					ref={animation => (this.animation = animation)}
+					source={require('../../../assets/animations/Bodymovin-rocket.json')}
+					autoPlay
+					loop
+					style={{ width: 300, height: 350 }}
+					enableMergePathsAndroidForKitKatAndAbove
+				/>
+			</View>
 		);
 	}
 }
@@ -162,4 +277,12 @@ NewRide.propTypes = {
 	navigation: PropTypes.any,
 };
 
-export default NewRide;
+const mapStateToProps = state => {
+	console.log('State:', state);
+	return {
+		pickUp: state.pickUp,
+		rideStatus: state.rideStatus,
+	};
+};
+
+export default connect(mapStateToProps, { createPickupInfo, updatePickupInfo })(NewRide);

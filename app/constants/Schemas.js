@@ -26,11 +26,12 @@ export const tripSchema = {
 	driverFare: Number(0.00),
 	tripFare: Number(0.00),
 	applicationFee: Number(0.00),
-	userHasPayed: false
+	userHasPayed: false,
+	tripAccepted: true,
 }
 
 export const requestSchema = {
-	isAccepted: false,
+	tripAccepted: false,
 	riderKey: "",
 	driverKey: "",
 	pickupCoordinate: [],
@@ -47,4 +48,13 @@ export const requestSchema = {
 	price: "",
 	arrivalTime: "",
 	passengers: 0,
+}
+
+export const pickupSchema = {
+	driverKey: "",
+	driverName: "",
+	reg: "",
+	car: "",
+	carColour: "",
+	arrivalTime: "",
 }
